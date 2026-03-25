@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,44 +10,111 @@ interface PersonaTagProps {
   verdict: string;
 }
 
+// html2canvas 1.x cannot parse Tailwind CSS 4's lab()/oklch() color functions.
+// All colors inside the shareable card MUST use inline hex styles.
+const shareCardStyles = {
+  container: {
+    background: "linear-gradient(to bottom right, #12121a, #1a1025)",
+    borderRadius: "0.75rem",
+    padding: "1.5rem",
+    border: "1px solid rgba(168, 85, 247, 0.2)",
+  },
+  header: {
+    fontSize: "0.75rem",
+    fontFamily: "monospace",
+    color: "rgba(34, 211, 238, 0.6)",
+    letterSpacing: "0.1em",
+    textAlign: "center" as const,
+  },
+  verdict: {
+    fontSize: "1.125rem",
+    fontWeight: "bold",
+    color: "#a855f7",
+    textShadow: "0 0 10px #a855f7, 0 0 20px rgba(168, 85, 247, 0.3)",
+    textAlign: "center" as const,
+    marginTop: "0.25rem",
+  },
+  tagsWrapper: {
+    display: "flex",
+    flexWrap: "wrap" as const,
+    gap: "0.5rem",
+    justifyContent: "center",
+    marginTop: "1rem",
+  },
+  tag: {
+    fontSize: "0.75rem",
+    padding: "0.375rem 0.75rem",
+    borderRadius: "9999px",
+    border: "1px solid rgba(168, 85, 247, 0.3)",
+    backgroundColor: "rgba(168, 85, 247, 0.1)",
+    color: "#d8b4fe",
+  },
+  footer: {
+    fontSize: "10px",
+    textAlign: "center" as const,
+    color: "rgba(148, 163, 184, 0.4)",
+    fontFamily: "monospace",
+    marginTop: "1rem",
+  },
+};
+
 export default function PersonaTag({ tags, verdict }: PersonaTagProps) {
   const shareRef = useRef<HTMLDivElement>(null);
+  const [saving, setSaving] = useState(false);
 
   const handleShare = useCallback(async () => {
-    if (!shareRef.current) return;
+    if (!shareRef.current || saving) return;
+    setSaving(true);
 
     try {
-      const html2canvas = (await import("html2canvas")).default;
+      const mod = await import("html2canvas");
+      const html2canvas = (typeof mod.default === "function" ? mod.default : mod) as (
+        el: HTMLElement,
+        opts?: Record<string, unknown>
+      ) => Promise<HTMLCanvasElement>;
+
       const canvas = await html2canvas(shareRef.current, {
         backgroundColor: "#0a0a0f",
         scale: 2,
+        useCORS: true,
       });
 
-      canvas.toBlob((blob) => {
-        if (!blob) return;
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, "image/png")
+      );
+      if (!blob) {
+        alert("图片生成失败，请重试");
+        return;
+      }
 
-        // Try native share first
-        if (navigator.share && navigator.canShare?.({ files: [new File([], '')] })) {
-          const file = new File([blob], "love-audit-result.png", { type: "image/png" });
-          navigator.share({ files: [file], title: "LoveAudit 测评结果" }).catch(() => {
-            downloadImage(blob);
-          });
-        } else {
-          downloadImage(blob);
+      // Try native share first (mobile)
+      if (navigator.share && navigator.canShare?.({ files: [new File([], "")] })) {
+        const file = new File([blob], "love-audit-result.png", { type: "image/png" });
+        try {
+          await navigator.share({ files: [file], title: "LoveAudit 测评结果" });
+          return;
+        } catch {
+          // User cancelled or share failed — fall through to download
         }
-      });
-    } catch {
-      // Fallback: just download
-      alert("图片生成中，请稍后再试");
+      }
+
+      downloadImage(blob);
+    } catch (e) {
+      console.error("html2canvas error:", e);
+      alert("图片生成失败，请重试");
+    } finally {
+      setSaving(false);
     }
-  }, []);
+  }, [saving]);
 
   const downloadImage = (blob: Blob) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = "love-audit-result.png";
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 
@@ -64,26 +131,20 @@ export default function PersonaTag({ tags, verdict }: PersonaTagProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Shareable card */}
-          <div
-            ref={shareRef}
-            className="bg-gradient-to-br from-[#12121a] to-[#1a1025] rounded-xl p-6 border border-purple-500/20 space-y-4"
-          >
-            <div className="text-center">
-              <p className="text-xs font-mono text-cyan-400/60 tracking-widest">LOVEAUDIT</p>
-              <p className="text-lg font-bold text-glow-purple mt-1">{verdict}</p>
+          {/* Shareable card — uses inline hex styles for html2canvas compatibility */}
+          <div ref={shareRef} style={shareCardStyles.container}>
+            <div>
+              <p style={shareCardStyles.header}>LOVEAUDIT</p>
+              <p style={shareCardStyles.verdict}>{verdict}</p>
             </div>
-            <div className="flex flex-wrap gap-2 justify-center">
+            <div style={shareCardStyles.tagsWrapper}>
               {tags.map((tag, i) => (
-                <span
-                  key={i}
-                  className="text-xs px-3 py-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300"
-                >
+                <span key={i} style={shareCardStyles.tag}>
                   #{tag}
                 </span>
               ))}
             </div>
-            <p className="text-[10px] text-center text-muted-foreground/40 font-mono">
+            <p style={shareCardStyles.footer}>
               loveaudit.app · AI亲密关系解码
             </p>
           </div>
@@ -95,8 +156,9 @@ export default function PersonaTag({ tags, verdict }: PersonaTagProps) {
               size="sm"
               onClick={handleShare}
               className="flex-1"
+              disabled={saving}
             >
-              保存/分享图片
+              {saving ? "生成中..." : "保存/分享图片"}
             </Button>
           </div>
         </CardContent>

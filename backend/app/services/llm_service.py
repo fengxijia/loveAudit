@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import logging
 import os
 from pathlib import Path
 from typing import AsyncGenerator, Dict, Optional
 
 import openai
+
+logger = logging.getLogger(__name__)
 
 PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
 
@@ -54,11 +57,16 @@ class LLMService:
             ],
             temperature=0.7,
             stream=True,
+            timeout=60,
         )
 
-        for chunk in response:
-            if chunk.choices and chunk.choices[0].delta.content:
-                yield chunk.choices[0].delta.content
+        try:
+            for chunk in response:
+                if chunk.choices and chunk.choices[0].delta.content:
+                    yield chunk.choices[0].delta.content
+        except Exception as e:
+            logger.error("Error during LLM streaming: %s", e, exc_info=True)
+            raise
 
     def _build_prompt(
         self,

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import MatrixRain from "@/components/analyzing/MatrixRain";
 import CbtTips from "@/components/analyzing/CbtTips";
-import { useAppStore } from "@/store/store";
+import { useAppStore, useHydrated } from "@/store/store";
 import { useSSE } from "@/hooks/useSSE";
+import { Button } from "@/components/ui/button";
 
 export default function AnalyzingPage() {
   const router = useRouter();
@@ -21,41 +22,45 @@ export default function AnalyzingPage() {
     setIsAnalyzing,
   } = useAppStore();
 
+  const hydrated = useHydrated();
   const hasStarted = useRef(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const sseOptions = useMemo(
     () => ({
+      timeoutMs: 90000,
       onMessage: (data: unknown) => {
         const d = data as { content?: string };
         if (d.content) appendStreamingText(d.content);
       },
       onComplete: (result: unknown) => {
-        const r = result as { result?: unknown };
+        const r = result as { result?: unknown; text?: string };
         if (r.result) {
           setAnalysisResult(r.result as ReturnType<typeof useAppStore.getState>["analysisResult"] & object);
+        } else if (r.text) {
+          // LLM returned non-JSON text; store as streaming text for fallback parsing
+          appendStreamingText(r.text);
         }
         setIsAnalyzing(false);
         setTimeout(() => router.push("/result"), 500);
       },
-      onError: () => {
+      onError: (err: Error) => {
         setIsAnalyzing(false);
-        setTimeout(() => router.push("/result"), 500);
+        setErrorMsg(err.message || "分析失败，请重试");
       },
     }),
     [appendStreamingText, setAnalysisResult, setIsAnalyzing, router]
   );
 
-  const { connect } = useSSE("/api/v1/analysis/stream", sseOptions);
+  const { connect, disconnect } = useSSE("/api/v1/analysis/stream", sseOptions);
 
-  useEffect(() => {
-    if (hasStarted.current) return;
-    hasStarted.current = true;
-
+  const startAnalysis = useCallback(() => {
     if (answers.length === 0) {
       router.push("/");
       return;
     }
 
+    setErrorMsg(null);
     resetStreamingText();
     setIsAnalyzing(true);
 
@@ -73,6 +78,17 @@ export default function AnalyzingPage() {
 
     connect(payload);
   }, [answers, userPersonality, partnerPersonality, freeformText, connect, resetStreamingText, setIsAnalyzing, router]);
+
+  useEffect(() => {
+    if (!hydrated || hasStarted.current) return;
+    hasStarted.current = true;
+    startAnalysis();
+  }, [hydrated, startAnalysis]);
+
+  const handleRetry = () => {
+    disconnect();
+    startAnalysis();
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center relative">
@@ -99,28 +115,48 @@ export default function AnalyzingPage() {
             </motion.div>
           </div>
 
-          <h2 className="text-xl font-bold text-glow mb-2 font-mono">
-            AI 深度分析中...
-          </h2>
-          <p className="text-sm text-muted-foreground mb-2">
-            正在交叉比对你的回答，识别关系模式
-          </p>
+          {errorMsg ? (
+            <>
+              <h2 className="text-xl font-bold text-red-400 mb-2 font-mono">
+                分析失败
+              </h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                {errorMsg}
+              </p>
+              <Button
+                variant="outline"
+                onClick={handleRetry}
+                className="mb-4"
+              >
+                重新分析
+              </Button>
+            </>
+          ) : (
+            <>
+              <h2 className="text-xl font-bold text-glow mb-2 font-mono">
+                AI 深度分析中...
+              </h2>
+              <p className="text-sm text-muted-foreground mb-2">
+                正在交叉比对你的回答，识别关系模式
+              </p>
 
-          {/* Progress dots */}
-          <div className="flex justify-center gap-1.5 mb-10">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <motion.div
-                key={i}
-                className="w-1.5 h-1.5 rounded-full bg-cyan-400/50"
-                animate={{ opacity: [0.3, 1, 0.3] }}
-                transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
-              />
-            ))}
-          </div>
+              {/* Progress dots */}
+              <div className="flex justify-center gap-1.5 mb-10">
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <motion.div
+                    key={i}
+                    className="w-1.5 h-1.5 rounded-full bg-cyan-400/50"
+                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
+                  />
+                ))}
+              </div>
+            </>
+          )}
         </motion.div>
 
         {/* CBT Tips during wait */}
-        <CbtTips />
+        {!errorMsg && <CbtTips />}
       </div>
     </div>
   );

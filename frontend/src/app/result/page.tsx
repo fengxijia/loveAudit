@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { useAppStore } from "@/store/store";
+import { useAppStore, useHydrated } from "@/store/store";
 import Verdict from "@/components/result/Verdict";
 import MentalHealth from "@/components/result/MentalHealth";
 import MythBuster from "@/components/result/MythBuster";
@@ -55,10 +55,12 @@ function parseStreamingText(text: string): AnalysisResult {
 
 export default function ResultPage() {
   const router = useRouter();
+  const hydrated = useHydrated();
   const { analysisResult, streamingText, answers } = useAppStore();
   const [result, setResult] = useState<AnalysisResult | null>(null);
 
   useEffect(() => {
+    if (!hydrated) return;
     if (answers.length === 0) {
       router.push("/");
       return;
@@ -69,7 +71,7 @@ export default function ResultPage() {
     } else if (streamingText) {
       setResult(parseStreamingText(streamingText));
     }
-  }, [analysisResult, streamingText, answers, router]);
+  }, [hydrated, analysisResult, streamingText, answers, router]);
 
   const verdictDisplay = useMemo(() => {
     if (!result) return null;
@@ -82,9 +84,37 @@ export default function ResultPage() {
   }, [result]);
 
   if (!result) {
+    const hasData = analysisResult || streamingText;
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground font-mono text-sm">加载中...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4">
+        {answers.length > 0 && !hasData ? (
+          <>
+            <p className="text-red-400 font-mono text-sm">分析结果获取失败</p>
+            <p className="text-muted-foreground text-xs">可能是网络问题或服务暂时不可用</p>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  useAppStore.getState().setIsAnalyzing(true);
+                  router.push("/analyzing");
+                }}
+              >
+                重新分析
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  useAppStore.getState().reset();
+                  router.push("/");
+                }}
+              >
+                重新测评
+              </Button>
+            </div>
+          </>
+        ) : (
+          <p className="text-muted-foreground font-mono text-sm">加载中...</p>
+        )}
       </div>
     );
   }

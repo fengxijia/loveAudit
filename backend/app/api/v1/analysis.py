@@ -1,7 +1,11 @@
 import json
+import logging
+import time
 from typing import Dict, Optional
 
 from fastapi import APIRouter
+
+logger = logging.getLogger(__name__)
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 
@@ -42,7 +46,15 @@ async def analysis_event_generator(
     risk_score = compute_risk_score(adjusted_tags)
     verdict = determine_verdict(risk_score)
 
-    llm_service = get_llm_service()
+    try:
+        llm_service = get_llm_service()
+    except Exception as e:
+        logger.error("LLM service init failed: %s", e, exc_info=True)
+        yield {
+            "event": "error",
+            "data": json.dumps({"error": f"LLM 服务初始化失败: {e}"}),
+        }
+        return
 
     try:
         yield {
@@ -51,19 +63,48 @@ async def analysis_event_generator(
         }
 
         buffer = ""
+        deadline = time.monotonic() + 90
+        timed_out = False
+
         async for chunk in llm_service.stream_analysis(
             answers_dict, user_personality, partner_personality,
             freeform_text, adjusted_tags, risk_score, verdict,
         ):
+            if time.monotonic() > deadline:
+                timed_out = True
+                break
             buffer += chunk
             yield {
                 "event": "chunk",
                 "data": json.dumps({"content": chunk}),
             }
 
+        if timed_out:
+            logger.warning("LLM streaming timed out after 90s (buffer length=%d)", len(buffer))
+            if buffer:
+                yield {
+                    "event": "complete",
+                    "data": json.dumps({"status": "complete", "text": buffer}),
+                }
+            else:
+                yield {
+                    "event": "error",
+                    "data": json.dumps({"error": "分析超时，请稍后重试"}),
+                }
+            return
+
         # Try to parse complete response as JSON
+        # Strip markdown code fences if present (e.g. ```json ... ```)
+        stripped = buffer.strip()
+        if stripped.startswith("```"):
+            first_newline = stripped.find("\n")
+            if first_newline != -1:
+                stripped = stripped[first_newline + 1:]
+            if stripped.endswith("```"):
+                stripped = stripped[:-3].strip()
+
         try:
-            result = json.loads(buffer)
+            result = json.loads(stripped)
             yield {
                 "event": "complete",
                 "data": json.dumps({"status": "complete", "result": result}),
@@ -75,6 +116,7 @@ async def analysis_event_generator(
             }
 
     except Exception as e:
+        logger.error("SSE generator error: %s", e, exc_info=True)
         yield {
             "event": "error",
             "data": json.dumps({"error": str(e)}),

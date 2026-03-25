@@ -4,7 +4,7 @@ import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { questions } from "@/data/questions";
-import { useAppStore } from "@/store/store";
+import { useAppStore, useHydrated } from "@/store/store";
 import QuestionCard from "@/components/assessment/QuestionCard";
 import ChapterIntro from "@/components/assessment/ChapterIntro";
 import ProgressBar from "@/components/assessment/ProgressBar";
@@ -12,6 +12,7 @@ import { PersonalityType } from "@/types";
 
 export default function AssessmentPage() {
   const router = useRouter();
+  const hydrated = useHydrated();
   const {
     currentIndex,
     setCurrentIndex,
@@ -90,7 +91,7 @@ export default function AssessmentPage() {
     }
   };
 
-  if (!currentQuestion) return null;
+  if (!hydrated || !currentQuestion) return null;
 
   // Show chapter intro
   if (showChapterIntro || needsChapterIntro) {
