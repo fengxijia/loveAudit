@@ -10,8 +10,10 @@ export interface Question {
   chapter: number;
   question: string;
   description?: string;
-  type: "single" | "text";
+  type: "single" | "multi" | "scale" | "text";
   choices?: Choice[];
+  /** Max selections for multi-select questions */
+  maxSelections?: number;
   /** Whether this question adapts based on personality type */
   adaptive?: boolean;
   /** Hidden psych dimension this question maps to */
@@ -41,21 +43,47 @@ export interface AssessmentState {
   isComplete: boolean;
 }
 
-export type VerdictLevel = "angel" | "observe" | "run";
+// ── Result types (v2) ──
+
+export type ResultType =
+  | "angel_couple"
+  | "grinding_growth"
+  | "reality_gap"
+  | "high_drain"
+  | "boundary_imbalance"
+  | "high_risk";
+
+export type RiskTier = "low" | "medium" | "high";
+
+export interface Scores {
+  safety: number;
+  compatibility: number;
+  repair: number;
+}
+
+export interface Warning {
+  code: string;
+  message: string;
+}
+
+export interface Reframe {
+  myth: string;
+  truth: string;
+}
 
 export interface AnalysisResult {
-  verdict: VerdictLevel;
-  verdictTitle: string;
-  verdictDescription: string;
-  mentalHealth: {
-    user: string;
-    partner: string;
-  };
-  mythBusters: Array<{
-    buzzword: string;
-    realMeaning: string;
-    analysis: string;
-  }>;
+  // Backend-computed
+  scores: Scores;
+  resultType: ResultType;
+  resultLabel: string;
+  riskTier: RiskTier;
+  warnings: Warning[];
+
+  // LLM-generated
+  summaryLine: string;
+  insights: string[];
+  reframe: Reframe[];
+  advice: string[];
   personaTags: string[];
-  tips: string[];
+  warningBlock?: string | null;
 }

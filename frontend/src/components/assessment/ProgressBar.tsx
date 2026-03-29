@@ -16,7 +16,7 @@ export default function ProgressBar({ currentIndex, totalQuestions, currentChapt
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center text-xs font-mono">
-        <span className="text-purple-400/80">
+        <span className="text-neon/80">
           {chapter?.icon} {chapter?.title}
         </span>
         <span className="text-muted-foreground">

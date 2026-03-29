@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1 import assessment, analysis
+from app.api.v1 import assessment, analysis, counter
 from app.config import get_settings
 
 settings = get_settings()
@@ -23,6 +23,7 @@ app.add_middleware(
 
 app.include_router(assessment.router, prefix=settings.api_prefix, tags=["assessment"])
 app.include_router(analysis.router, prefix=settings.api_prefix, tags=["analysis"])
+app.include_router(counter.router, prefix=settings.api_prefix, tags=["counter"])
 
 
 @app.get("/health")

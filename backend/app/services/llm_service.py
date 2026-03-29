@@ -40,13 +40,15 @@ class LLMService:
         partner_personality: Optional[str],
         freeform_text: str,
         tags_summary: Dict[str, float],
-        risk_score: float,
-        verdict: str,
+        scores: Dict[str, float],
+        result_type: str,
+        result_label: str,
+        risk_tier: str,
     ) -> AsyncGenerator[str, None]:
         system_prompt = load_prompt("analysis_system")
         user_prompt = self._build_prompt(
             answers, user_personality, partner_personality,
-            freeform_text, tags_summary, risk_score, verdict,
+            freeform_text, tags_summary, scores, result_type, result_label, risk_tier,
         )
 
         response = self.client.chat.completions.create(
@@ -75,31 +77,46 @@ class LLMService:
         partner_personality: Optional[str],
         freeform_text: str,
         tags_summary: Dict[str, float],
-        risk_score: float,
-        verdict: str,
+        scores: Dict[str, float],
+        result_type: str,
+        result_label: str,
+        risk_tier: str,
     ) -> str:
-        parts = []
-        parts.append("## 用户答题数据\n")
+        parts: list[str] = []
 
+        # ── Full question text + user selection ──
+        parts.append("## 用户完整答题记录\n")
         for qid, answer in sorted(answers.items(), key=lambda x: int(x[0])):
-            parts.append(f"题目{qid}: 选择={answer.get('value', 'N/A')}")
+            q_text = answer.get("questionText", f"题目{qid}")
+            selected = answer.get("selectedLabel", answer.get("value", "N/A"))
+            parts.append(f"**{q_text}**")
+            parts.append(f"用户选择：{selected}\n")
 
-        parts.append(f"\n## 性格类型")
+        # ── Personality types ──
+        parts.append("## 性格类型")
         parts.append(f"用户: {user_personality or '未知'}")
         parts.append(f"伴侣: {partner_personality or '未知'}")
 
+        # ── Freeform text ──
         if freeform_text:
             parts.append(f"\n## 用户补充说明\n{freeform_text}")
 
-        parts.append(f"\n## 心理标签汇总")
+        # ── Tag summary ──
+        parts.append("\n## 心理标签汇总")
         for tag, score in sorted(tags_summary.items(), key=lambda x: -x[1]):
             parts.append(f"- {tag}: {score}")
 
-        parts.append(f"\n## 初步评估")
-        parts.append(f"风险分数: {risk_score}/100")
-        parts.append(f"初步判定: {verdict}")
+        # ── Backend pre-computed results ──
+        parts.append("\n## 系统预评估")
+        parts.append(f"关系类型: {result_label} ({result_type})")
+        parts.append(f"风险等级: {risk_tier}")
+        parts.append(f"安全指数: {scores.get('safety', 50)}/100")
+        parts.append(f"适配指数: {scores.get('compatibility', 50)}/100")
+        parts.append(f"修复指数: {scores.get('repair', 50)}/100")
+        parts.append(f"消耗程度: {scores.get('drain', 30)}/100")
 
-        parts.append("\n请根据以上数据生成完整的分析报告。")
+        parts.append("\n请根据以上数据，紧扣用户的具体回答，生成分析报告。"
+                     "insights 部分必须引用用户的实际选择来分析，不要泛泛而谈。")
         return "\n".join(parts)
 
 

@@ -25,6 +25,7 @@
   --color-neon: var(--neon);
   --color-neon-glow: var(--neon-glow);
   --color-mystic: var(--mystic);
+  --color-rose: var(--rose-accent);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -33,26 +34,27 @@
 
 :root {
   --radius: 0.625rem;
-  /* Dark theme by default - cyberpunk/tarot aesthetic */
-  --background: #0a0a0f;
-  --foreground: #e2e8f0;
-  --card: #12121a;
-  --card-foreground: #e2e8f0;
-  --primary: #a855f7;
-  --primary-foreground: #0a0a0f;
-  --secondary: #1e1e2e;
-  --secondary-foreground: #e2e8f0;
-  --muted: #1a1a2e;
-  --muted-foreground: #94a3b8;
-  --accent: #7c3aed;
-  --accent-foreground: #e2e8f0;
-  --destructive: #ef4444;
-  --border: rgba(139, 92, 246, 0.15);
-  --input: rgba(139, 92, 246, 0.1);
-  --ring: #a855f7;
-  --neon: #22d3ee;
-  --neon-glow: rgba(34, 211, 238, 0.3);
-  --mystic: #c084fc;
+  /* Dark gothic theme — red / black / dusty rose */
+  --background: #0a0608;
+  --foreground: #e8dce0;
+  --card: #140e12;
+  --card-foreground: #e8dce0;
+  --primary: #9b1c31;
+  --primary-foreground: #e8dce0;
+  --secondary: #1e1218;
+  --secondary-foreground: #e8dce0;
+  --muted: #1a1218;
+  --muted-foreground: #9a8a92;
+  --accent: #7a1f3a;
+  --accent-foreground: #e8dce0;
+  --destructive: #dc2626;
+  --border: rgba(155, 28, 49, 0.15);
+  --input: rgba(155, 28, 49, 0.1);
+  --ring: #9b1c31;
+  --neon: #d4748a;
+  --neon-glow: rgba(212, 116, 138, 0.3);
+  --mystic: #e8a0b4;
+  --rose-accent: #c9556b;
 }
 
 @layer base {
@@ -62,37 +64,37 @@
   body {
     @apply bg-background text-foreground;
     background-image:
-      radial-gradient(ellipse at 20% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 20%, rgba(34, 211, 238, 0.03) 0%, transparent 50%);
+      radial-gradient(ellipse at 20% 50%, rgba(155, 28, 49, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(212, 116, 138, 0.03) 0%, transparent 50%);
     min-height: 100vh;
   }
 }
 
-/* Matrix rain character styling */
-@keyframes matrix-fall {
-  0% { transform: translateY(-100%); opacity: 1; }
-  100% { transform: translateY(100vh); opacity: 0; }
+/* Rose petal falling animation */
+@keyframes petal-fall {
+  0% { transform: translateY(-100%) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
 }
 
-/* Glowing text */
+/* Glowing text — rose/pink */
 .text-glow {
   text-shadow: 0 0 10px var(--neon), 0 0 20px var(--neon-glow), 0 0 40px var(--neon-glow);
 }
 
-.text-glow-purple {
-  text-shadow: 0 0 10px var(--primary), 0 0 20px rgba(168, 85, 247, 0.3), 0 0 40px rgba(168, 85, 247, 0.1);
+.text-glow-red {
+  text-shadow: 0 0 10px var(--primary), 0 0 20px rgba(155, 28, 49, 0.3), 0 0 40px rgba(155, 28, 49, 0.1);
 }
 
-/* Card glow effect */
+/* Card glow effect — dark crimson */
 .card-glow {
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.1), inset 0 0 15px rgba(139, 92, 246, 0.05);
+  box-shadow: 0 0 15px rgba(155, 28, 49, 0.1), inset 0 0 15px rgba(155, 28, 49, 0.05);
   transition: box-shadow 0.3s ease;
 }
 .card-glow:hover {
-  box-shadow: 0 0 25px rgba(139, 92, 246, 0.2), inset 0 0 25px rgba(139, 92, 246, 0.1);
+  box-shadow: 0 0 25px rgba(155, 28, 49, 0.2), inset 0 0 25px rgba(155, 28, 49, 0.1);
 }
 
-/* Scanning line effect */
+/* Scanning line effect — rose tint */
 @keyframes scan {
   0% { transform: translateY(-100%); }
   100% { transform: translateY(100%); }
@@ -101,7 +103,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(transparent 0%, rgba(34, 211, 238, 0.03) 50%, transparent 100%);
+  background: linear-gradient(transparent 0%, rgba(212, 116, 138, 0.03) 50%, transparent 100%);
   animation: scan 4s linear infinite;
   pointer-events: none;
 }
@@ -118,15 +120,25 @@
 }
 
 /* Verdict animations */
-@keyframes pulse-green {
-  0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(34, 197, 94, 0.6); }
+@keyframes pulse-rose {
+  0%, 100% { box-shadow: 0 0 20px rgba(232, 160, 180, 0.25); }
+  50% { box-shadow: 0 0 40px rgba(232, 160, 180, 0.5); }
 }
-@keyframes pulse-yellow {
-  0%, 100% { box-shadow: 0 0 20px rgba(234, 179, 8, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(234, 179, 8, 0.6); }
+@keyframes pulse-amber {
+  0%, 100% { box-shadow: 0 0 20px rgba(252, 211, 77, 0.2); }
+  50% { box-shadow: 0 0 40px rgba(252, 211, 77, 0.4); }
 }
 @keyframes pulse-red {
-  0%, 100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(239, 68, 68, 0.6); }
+  0%, 100% { box-shadow: 0 0 20px rgba(155, 28, 49, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(155, 28, 49, 0.6); }
+}
+
+/* Rose/mandala decorative line art background */
+.rose-ornament::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(155, 28, 49, 0.03) 0%, transparent 70%);
+  pointer-events: none;
 }

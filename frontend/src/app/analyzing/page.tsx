@@ -8,6 +8,8 @@ import CbtTips from "@/components/analyzing/CbtTips";
 import { useAppStore, useHydrated } from "@/store/store";
 import { useSSE } from "@/hooks/useSSE";
 import { Button } from "@/components/ui/button";
+import { questions } from "@/data/questions";
+import type { AnalysisResult } from "@/types";
 
 export default function AnalyzingPage() {
   const router = useRouter();
@@ -34,11 +36,10 @@ export default function AnalyzingPage() {
         if (d.content) appendStreamingText(d.content);
       },
       onComplete: (result: unknown) => {
-        const r = result as { result?: unknown; text?: string };
+        const r = result as { result?: AnalysisResult; text?: string };
         if (r.result) {
-          setAnalysisResult(r.result as ReturnType<typeof useAppStore.getState>["analysisResult"] & object);
+          setAnalysisResult(r.result);
         } else if (r.text) {
-          // LLM returned non-JSON text; store as streaming text for fallback parsing
           appendStreamingText(r.text);
         }
         setIsAnalyzing(false);
@@ -64,12 +65,22 @@ export default function AnalyzingPage() {
     resetStreamingText();
     setIsAnalyzing(true);
 
+    // Build payload with full question text + selected label for LLM context
     const payload = {
       answers: Object.fromEntries(
-        answers.map((a) => [
-          String(a.questionId),
-          { value: a.value, tags: a.tags },
-        ])
+        answers.map((a) => {
+          const q = questions.find((qq) => qq.id === a.questionId);
+          const selectedChoice = q?.choices?.find((c) => c.value === a.value);
+          return [
+            String(a.questionId),
+            {
+              value: a.value,
+              tags: a.tags,
+              questionText: q?.question || "",
+              selectedLabel: selectedChoice?.label || a.value,
+            },
+          ];
+        })
       ),
       userPersonality,
       partnerPersonality,
@@ -103,12 +114,12 @@ export default function AnalyzingPage() {
           {/* Scanning animation */}
           <div className="mb-8">
             <motion.div
-              className="w-20 h-20 mx-auto rounded-full border-2 border-cyan-400/30 flex items-center justify-center"
-              animate={{ boxShadow: ["0 0 20px rgba(34,211,238,0.1)", "0 0 40px rgba(34,211,238,0.3)", "0 0 20px rgba(34,211,238,0.1)"] }}
+              className="w-20 h-20 mx-auto rounded-full border-2 border-neon/30 flex items-center justify-center"
+              animate={{ boxShadow: ["0 0 20px rgba(212,116,138,0.1)", "0 0 40px rgba(212,116,138,0.3)", "0 0 20px rgba(212,116,138,0.1)"] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
               <motion.div
-                className="w-12 h-12 rounded-full border border-purple-500/40"
+                className="w-12 h-12 rounded-full border border-primary/40"
                 animate={{ rotate: 360 }}
                 transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
               />
@@ -145,7 +156,7 @@ export default function AnalyzingPage() {
                 {[0, 1, 2, 3, 4].map((i) => (
                   <motion.div
                     key={i}
-                    className="w-1.5 h-1.5 rounded-full bg-cyan-400/50"
+                    className="w-1.5 h-1.5 rounded-full bg-neon/50"
                     animate={{ opacity: [0.3, 1, 0.3] }}
                     transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
                   />

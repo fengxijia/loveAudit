@@ -43,7 +43,7 @@ export default function HookCards() {
                 <p className="text-sm font-medium text-foreground leading-relaxed">
                   {hook.question}
                 </p>
-                <p className="text-xs text-cyan-400/70 mt-1.5 font-mono">
+                <p className="text-xs text-neon/70 mt-1.5 font-mono">
                   → {hook.subtext}
                 </p>
               </div>

@@ -14,7 +14,7 @@ const Progress = React.forwardRef<
     {...props}
   >
     <ProgressPrimitive.Indicator
-      className="h-full rounded-full bg-gradient-to-r from-purple-600 via-purple-500 to-cyan-400 transition-all duration-500 ease-out"
+      className="h-full rounded-full bg-gradient-to-r from-primary via-rose-accent to-neon transition-all duration-500 ease-out"
       style={{ width: `${value || 0}%` }}
     />
   </ProgressPrimitive.Root>

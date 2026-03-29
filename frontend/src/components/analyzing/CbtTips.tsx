@@ -33,7 +33,7 @@ export default function CbtTips() {
           transition={{ duration: 0.4 }}
           className="text-center px-6 absolute"
         >
-          <p className="text-xs font-mono text-cyan-400/70 mb-2">
+          <p className="text-xs font-mono text-neon/70 mb-2">
             {tips[current].title}
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">

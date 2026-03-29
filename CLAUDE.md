@@ -94,6 +94,7 @@ Events from `/api/v1/analysis/stream`:
 All services run in a single tmux session `marriage` with two windows:
 - `marriage:backend` (window 0) — FastAPI on `:8147`
 - `marriage:frontend` (window 1) — Next.js on `:8654`
+- `marriage`的window 2：是claude code常驻的窗口，不要动
 
 **Rules:**
 - Always reuse this existing tmux session. Never create additional sessions or windows.

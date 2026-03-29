@@ -11,10 +11,13 @@ from sse_starlette.sse import EventSourceResponse
 
 from app.services.llm_service import get_llm_service
 from app.services.scoring_service import (
+    MIN_MEANINGFUL_ANSWERS,
     aggregate_tags,
     apply_adjustments,
-    compute_risk_score,
-    determine_verdict,
+    compute_dimension_scores,
+    count_meaningful_answers,
+    detect_warnings,
+    determine_result_type,
     get_personality_weight_adjustments,
 )
 
@@ -24,6 +27,8 @@ router = APIRouter()
 class AnswerValue(BaseModel):
     value: str
     tags: Dict[str, float] = {}
+    questionText: str = ""
+    selectedLabel: str = ""
 
 
 class StreamAnalysisRequest(BaseModel):
@@ -39,12 +44,65 @@ async def analysis_event_generator(
     partner_personality: Optional[str],
     freeform_text: str,
 ):
-    # Compute scores
+    # ── Check for insufficient data ──
+    meaningful = count_meaningful_answers(answers_dict)
+    if meaningful < MIN_MEANINGFUL_ANSWERS:
+        insufficient_result = {
+            "scores": {"safety": 0, "compatibility": 0, "repair": 0},
+            "resultType": "insufficient_data",
+            "resultLabel": "我不知道 🤡",
+            "riskTier": "low",
+            "warnings": [],
+            "summaryLine": f"你只认真回答了 {meaningful} 道题，我实在编不下去了。",
+            "insights": [
+                "你跳过了大部分问题，系统几乎没拿到关于你们关系的信息。",
+                "这就像让医生隔着墙诊脉——我再厉害也得有数据才能分析。",
+                "不过你愿意点进来，说明心里还是有疑问的，对吧？",
+            ],
+            "reframe": [
+                {
+                    "myth": "随便选选也能测出结果",
+                    "truth": "垃圾进，垃圾出。AI 不是算命，需要你的真实经历才能给出有意义的分析",
+                },
+            ],
+            "advice": [
+                "认真花 3 分钟重新做一遍，这次别跳过——你的关系值得你认真对待",
+                "如果你不想回答是因为'不确定'，那也是一种信号，值得留意",
+            ],
+            "personaTags": ["神秘选手", "量子态恋爱", "薛定谔的伴侣"],
+            "warningBlock": None,
+        }
+        yield {
+            "event": "start",
+            "data": json.dumps({
+                "status": "started",
+                "scores": insufficient_result["scores"],
+                "resultType": "insufficient_data",
+                "resultLabel": "我不知道 🤡",
+                "riskTier": "low",
+                "warnings": [],
+            }),
+        }
+        yield {
+            "event": "complete",
+            "data": json.dumps({"status": "complete", "result": insufficient_result}),
+        }
+        return
+
+    # ── Compute scores ──
     tags = aggregate_tags(answers_dict)
     adjustments = get_personality_weight_adjustments(user_personality, partner_personality)
     adjusted_tags = apply_adjustments(tags, adjustments)
-    risk_score = compute_risk_score(adjusted_tags)
-    verdict = determine_verdict(risk_score)
+    scores = compute_dimension_scores(adjusted_tags)
+    warnings = detect_warnings(adjusted_tags)
+    result_type, result_label, risk_tier = determine_result_type(scores, adjusted_tags)
+
+    # Visible scores (exclude hidden drain)
+    visible_scores = {
+        "safety": scores["safety"],
+        "compatibility": scores["compatibility"],
+        "repair": scores["repair"],
+    }
 
     try:
         llm_service = get_llm_service()
@@ -59,7 +117,14 @@ async def analysis_event_generator(
     try:
         yield {
             "event": "start",
-            "data": json.dumps({"status": "started", "riskScore": risk_score, "verdict": verdict}),
+            "data": json.dumps({
+                "status": "started",
+                "scores": visible_scores,
+                "resultType": result_type,
+                "resultLabel": result_label,
+                "riskTier": risk_tier,
+                "warnings": warnings,
+            }),
         }
 
         buffer = ""
@@ -68,7 +133,7 @@ async def analysis_event_generator(
 
         async for chunk in llm_service.stream_analysis(
             answers_dict, user_personality, partner_personality,
-            freeform_text, adjusted_tags, risk_score, verdict,
+            freeform_text, adjusted_tags, scores, result_type, result_label, risk_tier,
         ):
             if time.monotonic() > deadline:
                 timed_out = True
@@ -94,7 +159,6 @@ async def analysis_event_generator(
             return
 
         # Try to parse complete response as JSON
-        # Strip markdown code fences if present (e.g. ```json ... ```)
         stripped = buffer.strip()
         if stripped.startswith("```"):
             first_newline = stripped.find("\n")
@@ -104,16 +168,30 @@ async def analysis_event_generator(
                 stripped = stripped[:-3].strip()
 
         try:
-            result = json.loads(stripped)
-            yield {
-                "event": "complete",
-                "data": json.dumps({"status": "complete", "result": result}),
-            }
+            llm_result = json.loads(stripped)
         except json.JSONDecodeError:
-            yield {
-                "event": "complete",
-                "data": json.dumps({"status": "complete", "text": buffer}),
-            }
+            llm_result = {}
+
+        # Merge backend-computed fields with LLM-generated narrative
+        merged = {
+            "scores": visible_scores,
+            "resultType": result_type,
+            "resultLabel": result_label,
+            "riskTier": risk_tier,
+            "warnings": warnings,
+            # LLM fields (with fallbacks)
+            "summaryLine": llm_result.get("summaryLine", ""),
+            "insights": llm_result.get("insights", []),
+            "reframe": llm_result.get("reframe", []),
+            "advice": llm_result.get("advice", []),
+            "personaTags": llm_result.get("personaTags", []),
+            "warningBlock": llm_result.get("warningBlock"),
+        }
+
+        yield {
+            "event": "complete",
+            "data": json.dumps({"status": "complete", "result": merged}),
+        }
 
     except Exception as e:
         logger.error("SSE generator error: %s", e, exc_info=True)

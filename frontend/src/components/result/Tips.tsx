@@ -18,7 +18,7 @@ export default function Tips({ tips }: TipsProps) {
     >
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-mono text-cyan-400/80">
+          <CardTitle className="text-base font-mono text-neon/80">
             💡 相处建议
           </CardTitle>
         </CardHeader>
@@ -32,7 +32,7 @@ export default function Tips({ tips }: TipsProps) {
                 transition={{ delay: 1 + i * 0.1 }}
                 className="flex gap-3 text-sm text-muted-foreground leading-relaxed"
               >
-                <span className="text-purple-400/60 shrink-0 font-mono text-xs mt-0.5">
+                <span className="text-rose/60 shrink-0 font-mono text-xs mt-0.5">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 {tip}

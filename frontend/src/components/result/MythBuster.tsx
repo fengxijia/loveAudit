@@ -22,7 +22,7 @@ export default function MythBuster({ myths }: MythBusterProps) {
     >
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-mono text-cyan-400/80">
+          <CardTitle className="text-base font-mono text-neon/80">
             💥 网红名词真相解构
           </CardTitle>
           <p className="text-xs text-muted-foreground">
@@ -43,14 +43,14 @@ export default function MythBuster({ myths }: MythBusterProps) {
                   {myth.buzzword}
                 </span>
                 <span className="text-xs text-muted-foreground">→</span>
-                <span className="text-xs font-mono px-2 py-0.5 rounded bg-cyan-400/10 text-cyan-400">
+                <span className="text-xs font-mono px-2 py-0.5 rounded bg-neon/10 text-neon">
                   {myth.realMeaning}
                 </span>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed pl-1">
                 {myth.analysis}
               </p>
-              {i < myths.length - 1 && <div className="h-px bg-purple-500/10" />}
+              {i < myths.length - 1 && <div className="h-px bg-primary/10" />}
             </motion.div>
           ))}
         </CardContent>

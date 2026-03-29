@@ -8,7 +8,6 @@ import { useAppStore, useHydrated } from "@/store/store";
 import QuestionCard from "@/components/assessment/QuestionCard";
 import ChapterIntro from "@/components/assessment/ChapterIntro";
 import ProgressBar from "@/components/assessment/ProgressBar";
-import { PersonalityType } from "@/types";
 
 export default function AssessmentPage() {
   const router = useRouter();
@@ -18,8 +17,6 @@ export default function AssessmentPage() {
     setCurrentIndex,
     answers,
     addAnswer,
-    setUserPersonality,
-    setPartnerPersonality,
     setFreeformText,
   } = useAppStore();
 
@@ -40,13 +37,6 @@ export default function AssessmentPage() {
   const handleAnswer = useCallback(
     (value: string, tags: Record<string, number>) => {
       if (!currentQuestion) return;
-
-      // Record personality types
-      if (currentQuestion.id === 1) {
-        setUserPersonality(value as PersonalityType);
-      } else if (currentQuestion.id === 2) {
-        setPartnerPersonality(value as PersonalityType);
-      }
 
       // Record freeform text
       if (currentQuestion.type === "text") {
@@ -77,8 +67,6 @@ export default function AssessmentPage() {
       currentChapter,
       addAnswer,
       setCurrentIndex,
-      setUserPersonality,
-      setPartnerPersonality,
       setFreeformText,
       router,
     ]
@@ -91,7 +79,19 @@ export default function AssessmentPage() {
     }
   };
 
-  if (!hydrated || !currentQuestion) return null;
+  // Still loading persisted state
+  if (!hydrated) return null;
+
+  // currentIndex out of bounds → previous session completed all questions
+  if (!currentQuestion) {
+    if (answers.length > 0) {
+      router.replace("/analyzing");
+    } else {
+      // No answers either — corrupt state, go home
+      router.replace("/");
+    }
+    return null;
+  }
 
   // Show chapter intro
   if (showChapterIntro || needsChapterIntro) {
