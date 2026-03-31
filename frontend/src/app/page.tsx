@@ -24,7 +24,7 @@ export default function LandingPage() {
       <FloralBg />
 
       {/* Top spacer — push all content to lower portion */}
-      <div className="flex-[10] sm:flex-[4]" />
+      <div className="flex-[10] sm:flex-[4] lg:flex-[2]" />
 
       {/* Title */}
       <motion.div
@@ -34,10 +34,10 @@ export default function LandingPage() {
         transition={{ duration: 0.6 }}
       >
         <h1 className="font-bold mb-2 font-display">
-          <span className="text-glow-red text-3xl sm:text-5xl block sm:inline">LoveAudit: </span>
-          <span className="text-glow-red text-4xl sm:text-5xl block sm:inline mt-3 sm:mt-0">终身伴侣适配度评估</span>
+          <span className="text-glow-red text-3xl sm:text-5xl lg:text-6xl block sm:inline">LoveAudit: </span>
+          <span className="text-glow-red text-4xl sm:text-5xl lg:text-6xl block sm:inline mt-3 sm:mt-0">终身伴侣适配度评估</span>
         </h1>
-        <p className="text-base sm:text-lg font-display text-neon tracking-widest mt-4">
+        <p className="text-base sm:text-lg lg:text-xl font-display text-neon tracking-widest mt-4">
           TA真的适合和你携手一生吗？
         </p>
         <div className="mt-4 h-px w-32 mx-auto bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
@@ -45,7 +45,7 @@ export default function LandingPage() {
 
       {/* Subtitle */}
       <motion.p
-        className="text-muted-foreground text-center text-base mb-6 max-w-md relative z-10 font-display"
+        className="text-muted-foreground text-center text-base lg:text-lg mb-6 max-w-md relative z-10 font-display"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}

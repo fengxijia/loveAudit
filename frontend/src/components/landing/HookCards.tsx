@@ -35,10 +35,10 @@ export default function HookCards() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 + i * 0.2, duration: 0.5 }}
         >
-          <p className="text-base sm:text-lg text-foreground/80 font-display whitespace-nowrap">
+          <p className="text-base sm:text-lg lg:text-xl text-foreground/80 font-display whitespace-nowrap">
             {hook.question}
           </p>
-          <span className="text-sm sm:text-base text-neon/50 font-display whitespace-nowrap">
+          <span className="text-sm sm:text-base lg:text-lg text-neon/50 font-display whitespace-nowrap">
             —— {hook.subtext}
           </span>
         </motion.div>
