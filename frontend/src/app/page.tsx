@@ -24,7 +24,7 @@ export default function LandingPage() {
       <FloralBg />
 
       {/* Top spacer — push all content to lower portion */}
-      <div className="flex-[10] sm:flex-[12]" />
+      <div className="flex-[10] sm:flex-[4]" />
 
       {/* Title */}
       <motion.div
