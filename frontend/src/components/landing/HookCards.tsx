@@ -26,11 +26,12 @@ const indents = ["sm:ml-0", "sm:ml-10", "sm:ml-20", "sm:ml-30"];
 
 export default function HookCards() {
   return (
-    <div className="flex flex-col gap-2 w-full max-w-3xl mx-auto relative z-10 pl-10 pr-4 sm:pl-28 sm:pr-0">
+    <div className="flex flex-col gap-2 lg:gap-4 w-full max-w-3xl mx-auto relative z-10 pl-10 pr-4 sm:pl-28 sm:pr-0">
       {hooks.map((hook, i) => (
         <motion.div
           key={i}
           className={`flex flex-col sm:flex-row sm:items-baseline gap-0.5 sm:gap-3 ${indents[i]}`}
+          style={{ opacity: 0, transform: "translateX(-20px)" }}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 + i * 0.2, duration: 0.5 }}

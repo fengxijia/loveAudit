@@ -24,11 +24,12 @@ export default function LandingPage() {
       <FloralBg />
 
       {/* Top spacer — push all content to lower portion */}
-      <div className="flex-[10] sm:flex-[4] lg:flex-[2]" />
+      <div className="flex-[10] sm:flex-[4] lg:flex-[1]" />
 
       {/* Title */}
       <motion.div
-        className="text-center mb-6 relative z-10 -mt-0 sm:mt-0"
+        className="text-center mb-6 lg:mb-8 relative z-10 -mt-0 sm:mt-0"
+        style={{ opacity: 0, transform: "translateY(-20px)" }}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -45,7 +46,8 @@ export default function LandingPage() {
 
       {/* Subtitle */}
       <motion.p
-        className="text-muted-foreground text-center text-base lg:text-lg mb-6 max-w-md relative z-10 font-display"
+        className="text-muted-foreground text-center text-base lg:text-lg mb-6 lg:mb-8 max-w-md relative z-10 font-display"
+        style={{ opacity: 0 }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
@@ -58,7 +60,8 @@ export default function LandingPage() {
 
       {/* CTA */}
       <motion.div
-        className="mt-8 text-center relative z-10"
+        className="mt-8 lg:mt-10 text-center relative z-10"
+        style={{ opacity: 0, transform: "translateY(20px)" }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.2 }}

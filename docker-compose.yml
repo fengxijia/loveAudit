@@ -22,5 +22,5 @@ services:
     environment:
       - DEBUG=false
     volumes:
-      - ./visit_count.txt:/visit_count.txt
+      - ./visit_count.txt:/app/visit_count.txt
     restart: unless-stopped
