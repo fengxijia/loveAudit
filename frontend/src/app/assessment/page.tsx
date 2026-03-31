@@ -35,7 +35,7 @@ export default function AssessmentPage() {
   );
 
   const handleAnswer = useCallback(
-    (value: string, tags: Record<string, number>) => {
+    (value: string) => {
       if (!currentQuestion) return;
 
       // Record freeform text
@@ -43,7 +43,7 @@ export default function AssessmentPage() {
         setFreeformText(value);
       }
 
-      addAnswer({ questionId: currentQuestion.id, value, tags });
+      addAnswer({ questionId: currentQuestion.id, value });
 
       // Auto advance after short delay
       setTimeout(() => {

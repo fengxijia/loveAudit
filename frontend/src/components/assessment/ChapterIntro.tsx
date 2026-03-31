@@ -20,7 +20,7 @@ export default function ChapterIntro({ chapterId, onContinue }: ChapterIntroProp
       exit={{ opacity: 0 }}
     >
       <motion.span
-        className="text-5xl mb-6"
+        className="text-4xl font-mono text-primary/60 tracking-widest select-none"
         initial={{ scale: 0, rotate: -180 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ type: "spring", stiffness: 200, damping: 15 }}
@@ -32,12 +32,13 @@ export default function ChapterIntro({ chapterId, onContinue }: ChapterIntroProp
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
+        className="mt-6"
       >
-        <p className="text-xs font-mono text-neon/70 tracking-widest mb-2">
+        <p className="text-xs font-mono text-neon/70 tracking-[0.3em] mb-4">
           CHAPTER {chapter.id} / 5
         </p>
-        <h2 className="text-2xl font-bold text-glow-red mb-2">{chapter.title}</h2>
-        <p className="text-sm text-muted-foreground">{chapter.subtitle}</p>
+        <h2 className="text-2xl font-bold font-display text-glow-red mb-3">{chapter.title}</h2>
+        <p className="text-sm text-muted-foreground/80 font-display leading-relaxed">{chapter.subtitle}</p>
       </motion.div>
 
       <motion.div

@@ -12,6 +12,7 @@ import ReframeBlock from "@/components/result/ReframeBlock";
 import PersonaTag from "@/components/result/PersonaTag";
 import Tips from "@/components/result/Tips";
 import { Button } from "@/components/ui/button";
+import FloralBg from "@/components/landing/FloralBg";
 import type { AnalysisResult } from "@/types";
 
 /** Fallback: try to extract a usable result from streaming text or old-format data */
@@ -166,18 +167,22 @@ export default function ResultPage() {
   }
 
   return (
-    <div className="min-h-screen px-4 py-8 max-w-lg mx-auto">
+    <div className="min-h-screen px-4 py-8 max-w-lg mx-auto relative">
+      <FloralBg />
       {/* ── Capturable area ── */}
       <div
         ref={captureRef}
         data-capture
-        style={{ backgroundColor: "#0a0608", padding: "1.5rem 0" }}
-        className="space-y-5"
+        style={{
+          padding: "1.5rem 0",
+          backgroundColor: "rgba(10, 6, 8, 0.6)",
+        }}
+        className="space-y-5 relative z-10"
       >
         {/* Header */}
         <motion.div className="text-center mb-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <p style={{ fontSize: "0.75rem", fontFamily: "monospace", color: "rgba(212, 116, 138, 0.6)", letterSpacing: "0.1em" }}>
-            ANALYSIS COMPLETE
+          <p style={{ fontSize: "1.25rem", fontWeight: "bold", fontFamily: "var(--font-cormorant), serif", color: "#e8a0b4", letterSpacing: "0.15em", textShadow: "0 0 10px #d4748a, 0 0 30px rgba(212, 116, 138, 0.7), 0 0 60px rgba(212, 116, 138, 0.4), 0 0 100px rgba(155, 28, 49, 0.3)" }}>
+            ANALYSIS REPORT
           </p>
         </motion.div>
 
@@ -216,26 +221,25 @@ export default function ResultPage() {
 
       {/* ── Actions (outside capture area) ── */}
       <motion.div
-        className="space-y-3 pt-6"
+        className="space-y-3 pt-6 relative z-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2 }}
       >
-        <Button variant="neon" className="w-full" onClick={handleSaveImage} disabled={saving}>
+        <Button variant="neon" className="w-full bg-black/80 backdrop-blur-sm" onClick={handleSaveImage} disabled={saving}>
           {saving ? "生成中..." : "保存/分享完整报告"}
         </Button>
         <Button
           variant="outline"
-          className="w-full"
+          className="w-full bg-black/80 backdrop-blur-sm"
           onClick={() => { useAppStore.getState().reset(); router.push("/"); }}
         >
           重新测评
         </Button>
-        <p className="text-xs text-center text-muted-foreground/50 font-mono">
-          LoveAudit · 本测评不构成医学、心理或法律诊断，仅供参考
-        </p>
-        <p className="text-xs text-center text-muted-foreground/50 font-mono">
-          如果你觉得有用，请进可爱作者的{" "}
+        <p className="text-xs text-center text-muted-foreground/50 font-mono bg-background/60 backdrop-blur-sm px-4 py-2 rounded-lg leading-relaxed">
+          LoveAudit · 本测评不构成医学或心理诊断，仅供参考
+          <br />
+          如果你觉得有用，请Star可爱作者的{" "}
           <a
             href="https://github.com/fengxijia/loveAudit"
             target="_blank"
@@ -244,7 +248,7 @@ export default function ResultPage() {
           >
             GitHub
           </a>{" "}
-          为她点个Star叭～
+          叭～
         </p>
       </motion.div>
     </div>

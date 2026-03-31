@@ -22,7 +22,7 @@ export default function ReframeBlock({ reframes }: ReframeBlockProps) {
         >
           {/* Myth */}
           <div className="mb-3">
-            <p className="text-xs font-mono text-muted-foreground/60 mb-1.5">你可能以为</p>
+            <p className="text-xs font-display text-muted-foreground/60 mb-1.5">你可能以为</p>
             <p className="text-sm text-foreground/60 leading-relaxed italic">
               &ldquo;{item.myth}&rdquo;
             </p>
@@ -37,7 +37,7 @@ export default function ReframeBlock({ reframes }: ReframeBlockProps) {
 
           {/* Truth */}
           <div>
-            <p className="text-xs font-mono text-neon/70 mb-1.5">更接近的真相</p>
+            <p className="text-xs font-display text-neon/70 mb-1.5">更接近的真相</p>
             <p className="text-sm text-foreground/90 leading-relaxed font-medium">
               {item.truth}
             </p>

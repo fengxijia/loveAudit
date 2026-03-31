@@ -16,7 +16,7 @@ export default function InsightCards({ insights }: InsightCardsProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4 }}
     >
-      <p className="text-xs font-mono text-neon/70 tracking-widest mb-4">系统识别到</p>
+      <p className="text-xs font-display text-neon/70 tracking-widest mb-4">系统识别到</p>
       <div className="space-y-3">
         {insights.map((insight, i) => (
           <motion.div

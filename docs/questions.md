@@ -4,6 +4,7 @@ This file defines the concise MVP questionnaire for LoveAudit.
 It is optimized for mobile completion speed:
 - single-choice questions use **4 options only**
 - multi-select questions may use more options
+- scale questions use **5-point scale**
 - `不确定 / 跳过` should be rendered as a **secondary UI action**, not as a main option
 
 ---
@@ -12,16 +13,20 @@ It is optimized for mobile completion speed:
 - Total questions: 25
 - Estimated time: 3–4 minutes
 - Primary mode: mobile, one question at a time
-- Question types: single-choice, multi-select, optional free text
+- Question types: single-choice, multi-select, scale (1–5), optional free text
 - Single-choice rule: max 4 options
+- Scale rule: 5-point scale with labeled endpoints
 - Secondary actions: `不确定`, `跳过本题`
 
 ---
 
 ## Chapter 1: 安全与底线
+Subtitle: 建立长期关系的前提
+Icon: ◇
 
 ### Q1. 在边界和忠诚上，伴侣更接近：
 Type: `single`
+Dimension: `loyalty`
 Options:
 - A. 边界清楚，我很安心
 - B. 偶尔让我不舒服，但能沟通
@@ -31,6 +36,7 @@ Options:
 
 ### Q2. 在诚实和透明度上，伴侣更接近：
 Type: `single`
+Dimension: `trust`
 Options:
 - A. 基本透明坦诚
 - B. 有过隐瞒，但沟通后愿意坦诚
@@ -40,6 +46,7 @@ Options:
 
 ### Q3. 在查手机、社交对象这些事上，对方通常：
 Type: `single`
+Dimension: `safety`
 Options:
 - A. 尊重边界，不过度查问
 - B. 偶尔在意，但讲得通
@@ -51,6 +58,7 @@ Critical:
 
 ### Q4. 在钱和财务边界上，伴侣更接近：
 Type: `single`
+Dimension: `money`
 Options:
 - A. 对钱坦诚，会主动商量
 - B. 偶尔保留，但不伤信任
@@ -62,6 +70,7 @@ Critical:
 
 ### Q5. 在身体边界上，对方通常：
 Type: `single`
+Dimension: `safety`
 Options:
 - A. 尊重我的意愿和节奏
 - B. 偶有落差，但能沟通调整
@@ -71,13 +80,14 @@ Critical:
 - D is a serious red flag.
 
 
-### Q6. 你是否曾因对方感到害怕或不敢表达？
+### Q6. 你是否曾因害怕对方而不敢表达？
 Type: `single`
+Dimension: `safety`
 Options:
 - A. 从未，能安心表达
-- B. 有时会怕对方生气或冷暴力
-- C. 会，经常被对方责骂、威胁
-- D. 非常，害怕被对方跟踪、侮辱或伤及人身安全
+- B. 会斟酌语气，怕对方不高兴
+- C. 经常不敢说，怕被冷落、责怪或威胁
+- D. 基本不敢说，担心被羞辱、报复或伤害
 Critical:
 - C/D are serious red flags.
 
@@ -85,9 +95,12 @@ Critical:
 ---
 
 ## Chapter 2: 互动与情绪模式
+Subtitle: 你注意过你们的情绪互动模式吗？
+Icon: ◈
 
-### Q7. 关系出问题时，你通常先：
+### Q7. 发生矛盾时，你通常先：
 Type: `single`
+Dimension: `conflict`
 Options:
 - A. 积极沟通，想解决办法
 - B. 沉默、回避或消失，希望问题自动解决
@@ -95,8 +108,9 @@ Options:
 - D. 防御辩解，指责对方错得更多
 
 
-### Q8. 关系出问题时，伴侣通常先：
+### Q8. 发生矛盾时，伴侣通常先：
 Type: `single`
+Dimension: `conflict`
 Options:
 - A. 积极沟通，想解决办法
 - B. 沉默、回避或消失，希望问题自动解决
@@ -104,8 +118,9 @@ Options:
 - D. 防御辩解，指责你错得更多
 
 
-### Q9. 吵完架后，你们最常见的处理是：
+### Q9. 矛盾发生后，你们最常见的处理是：
 Type: `single`
+Dimension: `conflict`
 Options:
 - A. 能很快沟通修复矛盾
 - B. 过一阵能修复
@@ -115,6 +130,7 @@ Options:
 
 ### Q10. 当你表达不满或边界时，对方通常：
 Type: `single`
+Dimension: `communication`
 Options:
 - A. 认真听并调整
 - B. 当下防御，之后会改
@@ -127,9 +143,12 @@ Critical:
 ---
 
 ## Chapter 3: 价值观与核心规划
+Subtitle: 你们的三观与规划契合吗？
+Icon: △
 
 ### Q11. 在花钱和财务协作上，你们更接近：
 Type: `single`
+Dimension: `money`
 Options:
 - A. 观念接近，会商量
 - B. 有差异，但能尊重
@@ -139,8 +158,9 @@ Options:
 
 ### Q12. 在未来规划上，你们更接近：
 Type: `single`
+Dimension: `values`
 Options:
-- A. 大方向吻合
+- A. 基本都吻合
 - B. 大方向一致，细节在磨合
 - C. 还没认真谈过
 - D. 分歧大，或对方一直回避
@@ -148,6 +168,7 @@ Options:
 
 ### Q13. 对婚姻的理解，你们更接近：
 Type: `single`
+Dimension: `values`
 Options:
 - A. 对未来方向和节奏都有共识
 - B. 大方向一致，但一些现实安排还在磨合
@@ -157,6 +178,7 @@ Options:
 
 ### Q14. 对结婚这件事，伴侣目前更接近：
 Type: `single`
+Dimension: `values`
 Options:
 - A. 有明确结婚意愿，也愿意推进现实规划
 - B. 有结婚意愿，但还没准备好进入具体规划
@@ -166,6 +188,7 @@ Options:
 
 ### Q15. 对你追求兴趣、事业和成长，伴侣更接近：
 Type: `single`
+Dimension: `respect`
 Options:
 - A. 支持并鼓励
 - B. 尊重，不太干涉
@@ -175,6 +198,7 @@ Options:
 
 ### Q16. 在责任分配上，你们更接近：
 Type: `single`
+Dimension: `responsibility`
 Options:
 - A. 分工大致均衡，彼此都认可
 - B. 偶有偏多偏少，但整体还能协调
@@ -184,9 +208,12 @@ Options:
 ---
 
 ## Chapter 4: 家庭边界
+Subtitle: 追溯原生家庭的影响
+Icon: ▽
 
 ### Q17. 伴侣原生家庭的互动模式更接近：
 Type: `single`
+Dimension: `family`
 Options:
 - A. 和谐稳定，互相尊重
 - B. 有冲突，但能修复
@@ -196,8 +223,9 @@ Options:
 
 ### Q18. 在对父母的边界感上，伴侣更接近：
 Type: `single`
+Dimension: `family_boundary`
 Options:
-- A. 亲近但有边界
+- A. 有边界，有独立的思考
 - B. 会受父母影响，但会和我商量
 - C. 明显更站父母那边
 - D. 父母说了算
@@ -205,18 +233,22 @@ Options:
 ---
 
 ## Chapter 5: 主观体感
+Subtitle: 你的感受很重要
+Icon: ○
 
-### Q19. 用一句话形容这段关系，你更接近： 
-Type: `single` 
-Options: 
-- A. 安稳踏实自在，能坚定往前走 
-- B. 有爱也有矛盾，能在磨合中前进 
-- C. 好的时候很好，坏的时候很伤 
+### Q19. 用一句话形容这段关系，你更接近：
+Type: `single`
+Dimension: `core_wish`
+Options:
+- A. 安稳踏实自在，能坚定往前走
+- B. 有爱也有矛盾，能在磨合中前进
+- C. 好的时候很好，坏的时候很伤
 - D. 常在这段关系里失去自我
 
 
 ### Q20. 这段关系里，最让你感到消耗的是？（可选 1–2 项）
 Type: `multi`
+Dimension: `core_wish`
 Max selections: 2
 Options:
 - A. 常感到不被理解或不被回应
@@ -227,12 +259,61 @@ Options:
 - F. 基本没有明显消耗
 
 
-### Q21. 还有什么想补充的吗？（可跳过）
+### Q21. 你有多喜欢对方？请真诚回答
+Type: `scale`
+Dimension: `affection`
+Scale: 1–5
+Options:
+- 1. 很不喜欢
+- 2. 不太喜欢
+- 3. 一般
+- 4. 比较喜欢
+- 5. 非常喜欢
+
+
+### Q22. 你觉得TA有多喜欢你？请真诚回答
+Type: `scale`
+Dimension: `affection`
+Scale: 1–5
+Options:
+- 1. 很不喜欢我
+- 2. 不太喜欢我
+- 3. 一般
+- 4. 比较喜欢我
+- 5. 非常喜欢我
+
+
+### Q23. 你愿意包容TA的缺点吗？
+Type: `scale`
+Dimension: `tolerance`
+Scale: 1–5
+Options:
+- 1. 完全不愿意
+- 2. 不太愿意
+- 3. 一般
+- 4. 比较愿意
+- 5. 非常愿意
+
+
+### Q24. TA愿意包容你的缺点吗？
+Type: `scale`
+Dimension: `tolerance`
+Scale: 1–5
+Options:
+- 1. 完全不愿意
+- 2. 不太愿意
+- 3. 一般
+- 4. 比较愿意
+- 5. 非常愿意
+
+
+### Q25. 还有什么想补充的吗？（可跳过）
 Type: `text`
+Dimension: `freeform`
 Optional: true
 Prompt:
 - 只写一个最能代表这段关系的瞬间即可。
-- 例如：最近一次让你怀疑“TA 适不适合结婚”的事。
+- 例如：最近一次让你怀疑「TA 适不适合结婚」的事。
 Privacy:
 - Do not require completion.
 - Do not heavily analyze free text in MVP.
@@ -241,20 +322,17 @@ Privacy:
 
 ## Scoring Guidance Summary
 
-Vis我如何 indices:
-- 安全指数
-- 适配指数
-- 修复指数
-
-Hidden dimension:
-- 消耗指数
+Hidden tags per choice:
+- Risk tags: `risk`, `danger`, `controlled`, `selfish`, `verbal_abuse`, `gaslighting`, `mental_depressed`, `mental_unstable`, `incompatible`, `immature`, `unbalanced`, `stubborn`
+- Safe tags: `safe`, `mature`, `compatible`, `loyal`, `mental_healthy`, `family_healthy`, `secure`
+- Other tags: `avoidant`, `anxious`, `mental_anxious`, `dismissive`, `drain`, `family_risk`, `conflict`
 
 Red-flag-heavy questions:
-- Q3
-- Q4
-- Q5
-- Q6
-- Q18
+- Q3 (control)
+- Q4 (financial control)
+- Q5 (physical boundary)
+- Q6 (fear/coercion)
+- Q10 (coercion via threats)
 
 Strong trigger examples:
 - physical violence
@@ -274,6 +352,7 @@ These should affect:
 
 - Keep question copy short enough for one mobile screen.
 - Single-choice questions must stay at 4 main options.
+- Scale questions render as a 5-point slider or button row.
 - Render `不确定` and `跳过本题` as small tertiary buttons under the options.
 - Store skipped / unsure as `null` or `unknown`, not as a scored option.
 - Do not flatten red flags into a generic compatibility score.

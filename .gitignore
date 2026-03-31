@@ -1,4 +1,5 @@
 .env
+*.pem
 __pycache__/
 node_modules/
 .mypy_cache/
@@ -7,3 +8,7 @@ node_modules/
 .next/
 frontend/tsconfig.tsbuildinfo
 backend/visit_count.txt
+docs/
+background_image/
+archive/
+CLAUDE.md

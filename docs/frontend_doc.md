@@ -53,11 +53,10 @@
 ### 核心类型
 
 ```typescript
-// 选项（含隐藏心理标签）
+// 选项（纯展示，不含评分标签）
 interface Choice {
   label: string;              // 显示文本
   value: string;              // 选项值
-  tags: Record<string, number>; // 隐藏标签，如 { safe: 3, risk: 1 }
 }
 
 // 问题
@@ -80,11 +79,10 @@ interface Chapter {
   icon: string;               // 章节图标 emoji
 }
 
-// 用户答案
+// 用户答案（仅存选项值，不含评分标签）
 interface Answer {
   questionId: number;
   value: string;              // 选择的选项值
-  tags: Record<string, number>; // 该选项对应的标签
 }
 
 // 性格类型
@@ -195,13 +193,7 @@ export function useHydrated(): boolean
 
 ### 标签系统
 
-每个选项的 `tags` 字段包含心理标签和对应分数，用户不可见。
-
-**示例（Q3: "你们在一起时，你通常感觉？"）：**
-- 安全感 → `{ secure: 3, mental_healthy: 1 }`
-- 焦虑型 → `{ anxious: 2, mental_anxious: 1 }`
-- 回避型 → `{ avoidant: 2, mental_confused: 1 }`
-- 恐惧型 → `{ anxious: 3, mental_depressed: 1, controlled: 1 }`
+心理标签（如 `safe`, `risk`, `gaslighting`）**仅存于后端** `backend/app/data/questions_data.py`，前端不包含任何评分标签数据。前端只发送 `questionId` + `value`，后端根据此查表获取对应标签并计算评分。这样用户无法通过浏览器 DevTools、Network 面板或 localStorage 看到评分逻辑。
 
 ### 涉及的心理维度
 
@@ -288,10 +280,10 @@ interface SSEOptions {
 
 **SSE 集成：**
 - 发送 POST 至 `/api/v1/analysis/stream`
-- 请求体：
+- 请求体（不含 tags，评分标签由后端查表获取）：
   ```json
   {
-    "answers": { "1": { "value": "rational", "tags": {...} }, ... },
+    "answers": { "1": { "value": "A", "questionText": "...", "selectedLabel": "..." }, ... },
     "userPersonality": "rational",
     "partnerPersonality": "emotional",
     "freeformText": "..."
@@ -311,7 +303,7 @@ interface SSEOptions {
 **文件:** `src/app/result/page.tsx`
 
 **布局（从上到下）：**
-1. "ANALYSIS COMPLETE" 头部
+1. "ANALYSIS REPORT" 头部
 2. Verdict 卡片（判定结果）
 3. MentalHealth 卡片（心理分析）
 4. MythBuster 卡片（名词解构）
@@ -332,10 +324,10 @@ interface SSEOptions {
 
 #### QuestionCard (`src/components/assessment/QuestionCard.tsx`)
 
-**Props:** `question: Question`, `onAnswer: (value, tags) => void`, `selectedValue?: string`
+**Props:** `question: Question`, `onAnswer: (value) => void`, `selectedValue?: string`
 
 **行为：**
-- `type === "text"`：显示 textarea + 跳过按钮 + 提交按钮，tags 为空对象
+- `type === "text"`：显示 textarea + 跳过按钮 + 提交按钮
 - `type === "single"`：选项按钮列表，带交错入场动画
   - 已选中：cyan 边框 + cyan/10 背景 + 发光阴影
   - 未选中：purple/15 边框 + secondary/30 背景
@@ -537,12 +529,13 @@ export function cn(...inputs: ClassValue[]) {
 
 ```
 1. 用户在 /assessment 逐题作答
-   → 每个答案存入 Zustand store（含选项值和隐藏标签）
+   → 每个答案存入 Zustand store（仅含选项值，不含评分标签）
    ↓
-2. 19 题完成后自动跳转 /analyzing
+2. 25 题完成后自动跳转 /analyzing
    ↓
 3. analyzing 页面发送 POST /api/v1/analysis/stream
-   → 请求体包含所有答案 + 性格类型 + 自由文本
+   → 请求体包含所有答案（questionId + value + questionText + selectedLabel）+ 性格类型 + 自由文本
+   → 后端根据 questionId + value 从 questions_data.py 查表获取隐藏标签
    ↓
 4. SSE 流式接收：
    - chunk 事件 → appendStreamingText() 追加到 store

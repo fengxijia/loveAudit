@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 
+from app.data.questions_data import lookup_tags
 from app.services.llm_service import get_llm_service
 from app.services.scoring_service import (
     MIN_MEANINGFUL_ANSWERS,
@@ -26,7 +27,6 @@ router = APIRouter()
 
 class AnswerValue(BaseModel):
     value: str
-    tags: Dict[str, float] = {}
     questionText: str = ""
     selectedLabel: str = ""
 
@@ -203,7 +203,16 @@ async def analysis_event_generator(
 
 @router.post("/analysis/stream")
 async def stream_analysis(request: StreamAnalysisRequest):
-    answers_dict = {k: v.model_dump() for k, v in request.answers.items()}
+    # Look up tags server-side — never trust frontend-provided tags
+    answers_dict = {}
+    for qid, answer in request.answers.items():
+        tags = lookup_tags(int(qid), answer.value)
+        answers_dict[qid] = {
+            "value": answer.value,
+            "tags": tags,
+            "questionText": answer.questionText,
+            "selectedLabel": answer.selectedLabel,
+        }
 
     return EventSourceResponse(
         analysis_event_generator(

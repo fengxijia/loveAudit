@@ -1,8 +1,6 @@
 export interface Choice {
   label: string;
   value: string;
-  /** Hidden psychological tags mapped to this choice */
-  tags: Record<string, number>;
 }
 
 export interface Question {
@@ -30,7 +28,6 @@ export interface Chapter {
 export interface Answer {
   questionId: number;
   value: string;
-  tags: Record<string, number>;
 }
 
 export type PersonalityType = "rational" | "emotional" | "balanced";

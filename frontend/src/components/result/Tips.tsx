@@ -18,8 +18,8 @@ export default function Tips({ tips }: TipsProps) {
     >
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-mono text-neon/80">
-            💡 相处建议
+          <CardTitle className="text-base font-display text-neon/80">
+            相处建议
           </CardTitle>
         </CardHeader>
         <CardContent>

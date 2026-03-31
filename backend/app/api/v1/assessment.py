@@ -3,6 +3,7 @@ from typing import Dict, Optional
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from app.data.questions_data import lookup_tags
 from app.services.scoring_service import (
     aggregate_tags,
     apply_adjustments,
@@ -17,7 +18,6 @@ router = APIRouter()
 
 class AnswerValue(BaseModel):
     value: str
-    tags: Dict[str, float] = {}
 
 
 class SubmitRequest(BaseModel):
@@ -29,7 +29,11 @@ class SubmitRequest(BaseModel):
 
 @router.post("/assessment/submit")
 async def submit_assessment(request: SubmitRequest):
-    answers_dict = {k: v.model_dump() for k, v in request.answers.items()}
+    # Look up tags server-side — never trust frontend-provided tags
+    answers_dict = {}
+    for qid, answer in request.answers.items():
+        tags = lookup_tags(int(qid), answer.value)
+        answers_dict[qid] = {"value": answer.value, "tags": tags}
 
     tags = aggregate_tags(answers_dict)
     adjustments = get_personality_weight_adjustments(

@@ -8,6 +8,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-noto-serif), var(--font-cormorant), "Noto Serif SC", serif;
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-primary: var(--primary);
@@ -60,6 +61,11 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-text-size-adjust: none !important;
+    text-size-adjust: none !important;
+    font-size: 16px !important;
   }
   body {
     @apply bg-background text-foreground;

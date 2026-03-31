@@ -17,8 +17,8 @@ export default function PersonaTag({ tags, verdict }: PersonaTagProps) {
     >
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-mono text-neon/80">
-            🏷️ 你的关系情况
+          <CardTitle className="text-base font-display text-neon/80">
+            你的关系情况
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -26,6 +26,7 @@ export default function PersonaTag({ tags, verdict }: PersonaTagProps) {
             style={{
               fontSize: "1.125rem",
               fontWeight: "bold",
+              fontFamily: "var(--font-noto-serif), var(--font-cormorant), serif",
               color: "#d4748a",
               textShadow: "0 0 10px #9b1c31, 0 0 20px rgba(155, 28, 49, 0.3)",
               textAlign: "center",

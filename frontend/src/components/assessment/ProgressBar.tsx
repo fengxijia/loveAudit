@@ -17,7 +17,7 @@ export default function ProgressBar({ currentIndex, totalQuestions, currentChapt
     <div className="space-y-2">
       <div className="flex justify-between items-center text-xs font-mono">
         <span className="text-neon/80">
-          {chapter?.icon} {chapter?.title}
+          <span className="text-primary/50 mr-1.5">{chapter?.icon}</span>{chapter?.title}
         </span>
         <span className="text-muted-foreground">
           {currentIndex + 1} / {totalQuestions}

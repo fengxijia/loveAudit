@@ -6,7 +6,7 @@ import type { Question } from "@/types";
 
 interface QuestionCardProps {
   question: Question;
-  onAnswer: (value: string, tags: Record<string, number>) => void;
+  onAnswer: (value: string) => void;
   selectedValue?: string;
 }
 
@@ -41,30 +41,20 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
 
   const handleMultiSubmit = useCallback(() => {
     if (multiSelected.size === 0) return;
-    // Merge tags from all selected choices
-    const mergedTags: Record<string, number> = {};
-    for (const val of multiSelected) {
-      const choice = question.choices?.find((c) => c.value === val);
-      if (choice) {
-        for (const [tag, score] of Object.entries(choice.tags)) {
-          mergedTags[tag] = (mergedTags[tag] || 0) + score;
-        }
-      }
-    }
     const mergedValue = Array.from(multiSelected).sort().join(",");
-    onAnswer(mergedValue, mergedTags);
-  }, [multiSelected, question.choices, onAnswer]);
+    onAnswer(mergedValue);
+  }, [multiSelected, onAnswer]);
 
   if (question.type === "text") {
     return (
       <motion.div
-        className="space-y-4"
+        className="space-y-5"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
         <h3 className="text-lg font-medium leading-relaxed">{question.question}</h3>
         {question.description && (
-          <p className="text-sm text-muted-foreground">{question.description}</p>
+          <p className="text-sm text-muted-foreground mt-1">{question.description}</p>
         )}
         <textarea
           value={textValue}
@@ -74,14 +64,14 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
         />
         <div className="flex gap-3">
           <button
-            onClick={() => onAnswer("", {})}
+            onClick={() => onAnswer("")}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             跳过 →
           </button>
           {textValue.trim() && (
             <button
-              onClick={() => onAnswer(textValue, {})}
+              onClick={() => onAnswer(textValue)}
               className="text-sm text-neon hover:text-mystic transition-colors font-mono cursor-pointer"
             >
               提交 →
@@ -95,15 +85,15 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
   if (question.type === "multi") {
     return (
       <motion.div
-        className="space-y-4"
+        className="space-y-5"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
         <h3 className="text-lg font-medium leading-relaxed">{question.question}</h3>
         {question.description && (
-          <p className="text-sm text-muted-foreground">{question.description}</p>
+          <p className="text-sm text-muted-foreground mt-1">{question.description}</p>
         )}
-        <div className="space-y-3 mt-6">
+        <div className="space-y-3.5 mt-8">
           {question.choices?.map((choice, i) => {
             const isSelected = multiSelected.has(choice.value);
             const isDisabled =
@@ -113,12 +103,11 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
             return (
               <motion.button
                 key={choice.value}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.08 }}
+                initial={false}
+                animate={false}
                 onClick={() => handleMultiToggle(choice.value)}
                 disabled={isDisabled}
-                className={`w-full text-left p-4 rounded-lg border transition-all duration-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+                className={`w-full text-left py-4.5 px-5 rounded-lg border transition-all duration-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
                   isSelected
                     ? "border-neon/60 bg-neon/10 shadow-[0_0_15px_rgba(212,116,138,0.15)]"
                     : "border-primary/15 bg-secondary/30 hover:border-primary/40 hover:bg-secondary/60"
@@ -181,7 +170,7 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
               return (
                 <button
                   key={choice.value}
-                  onClick={() => onAnswer(choice.value, choice.tags)}
+                  onClick={() => onAnswer(choice.value)}
                   className="group relative z-10 flex flex-col items-center gap-2 cursor-pointer"
                 >
                   <motion.div
@@ -220,7 +209,7 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
         {/* Skip */}
         <div className="pt-1">
           <button
-            onClick={() => onAnswer("skip", {})}
+            onClick={() => onAnswer("skip")}
             className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors cursor-pointer"
           >
             不确定 / 跳过本题
@@ -239,25 +228,24 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
     >
       <h3 className="text-lg font-medium leading-relaxed">{question.question}</h3>
       {question.description && (
-        <p className="text-sm text-muted-foreground">{question.description}</p>
+        <p className="text-sm text-muted-foreground mt-1">{question.description}</p>
       )}
-      <div className="space-y-3 mt-6">
+      <div className="space-y-3.5 mt-8">
         {question.choices?.map((choice, i) => {
           const isSelected = selectedValue === choice.value;
           return (
             <motion.button
               key={choice.value}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.08 }}
-              onClick={() => onAnswer(choice.value, choice.tags)}
-              className={`w-full text-left p-4 rounded-lg border transition-all duration-300 cursor-pointer ${
+              initial={false}
+              animate={false}
+              onClick={() => onAnswer(choice.value)}
+              className={`w-full text-left py-4.5 px-5 rounded-lg border transition-all duration-300 cursor-pointer ${
                 isSelected
                   ? "border-neon/60 bg-neon/10 shadow-[0_0_15px_rgba(212,116,138,0.15)]"
                   : "border-primary/15 bg-secondary/30 hover:border-primary/40 hover:bg-secondary/60"
               }`}
             >
-              <span className="text-sm">{choice.label}</span>
+              <span className="text-sm leading-relaxed">{choice.label}</span>
             </motion.button>
           );
         })}
@@ -265,7 +253,7 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
       {/* Secondary skip action */}
       <div className="pt-1">
         <button
-          onClick={() => onAnswer("skip", {})}
+          onClick={() => onAnswer("skip")}
           className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors cursor-pointer"
         >
           不确定 / 跳过本题

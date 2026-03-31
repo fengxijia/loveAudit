@@ -65,7 +65,7 @@ export default function AnalyzingPage() {
     resetStreamingText();
     setIsAnalyzing(true);
 
-    // Build payload with full question text + selected label for LLM context
+    // Build payload — tags are looked up server-side, not sent from frontend
     const payload = {
       answers: Object.fromEntries(
         answers.map((a) => {
@@ -75,7 +75,6 @@ export default function AnalyzingPage() {
             String(a.questionId),
             {
               value: a.value,
-              tags: a.tags,
               questionText: q?.question || "",
               selectedLabel: selectedChoice?.label || a.value,
             },

@@ -14,7 +14,8 @@
 - [8. 应用流程](#8-应用流程)
 - [9. 依赖与版本](#9-依赖与版本)
 - [10. 部署](#10-部署)
-- [11. 错误处理与日志](#11-错误处理与日志)
+- [11. 题目数据与标签查表](#11-题目数据与标签查表)
+- [12. 错误处理与日志](#12-错误处理与日志)
 
 ---
 
@@ -226,7 +227,6 @@ async def stream_analysis(
 ```python
 class AnswerValue(BaseModel):
     value: str                    # 选项值（如 "A"、"B"）
-    tags: Dict[str, float]        # 心理标签及分数
 
 class SubmitRequest(BaseModel):
     answers: Dict[str, AnswerValue]          # 按题目 ID 索引
@@ -235,17 +235,22 @@ class SubmitRequest(BaseModel):
     freeformText: str = ""                   # 用户补充文字
 ```
 
+> **安全设计：** 前端不传递 tags，后端根据 `questionId + value` 从 `questions_data.py` 查表获取隐藏标签，防止用户通过浏览器 DevTools 看到评分逻辑。
+
 **响应：**
 ```json
 {
-  "riskScore": 45.3,
-  "verdict": "observe",
+  "scores": { "safety": 75.0, "compatibility": 60.0, "repair": 55.0 },
+  "resultType": "grinding_growth",
+  "resultLabel": "磨合可成型",
+  "riskTier": "low",
+  "warnings": [],
   "tagsSummary": { "safe": 1.0, "mature": 0.5, "compatible": 0.64 }
 }
 ```
 
 **处理流程：**
-1. 解析 answers 为字典格式
+1. 遍历 answers，对每个 questionId + value 调用 `lookup_tags()` 查表获取隐藏标签
 2. `aggregate_tags()` 汇总标签
 3. `get_personality_weight_adjustments()` 获取性格调整系数
 4. `apply_adjustments()` 应用调整
@@ -260,6 +265,11 @@ class SubmitRequest(BaseModel):
 
 **请求模型：**
 ```python
+class AnswerValue(BaseModel):
+    value: str                    # 选项值
+    questionText: str = ""        # 题目文本（供 LLM 上下文）
+    selectedLabel: str = ""       # 选中选项的显示文本
+
 class StreamAnalysisRequest(BaseModel):
     answers: Dict[str, AnswerValue]
     userPersonality: Optional[str] = None
@@ -270,7 +280,8 @@ class StreamAnalysisRequest(BaseModel):
 **响应类型：** `sse_starlette.sse.EventSourceResponse`（Server-Sent Events）
 
 处理流程：
-1. 先执行与 assessment/submit 相同的评分逻辑
+1. 遍历 answers，对每个 questionId + value 调用 `lookup_tags()` 查表获取隐藏标签
+2. 执行与 assessment/submit 相同的评分逻辑
 2. 发送 `start` 事件（含 riskScore 和 verdict）
 3. 初始化 LLMService，开始流式生成
 4. 逐块发送 `chunk` 事件，同时累积到 buffer
@@ -445,7 +456,32 @@ JSON 解析失败时（返回原始文本）：
 
 ---
 
-## 11. 错误处理与日志
+## 11. 题目数据与标签查表
+
+**文件:** `backend/app/data/questions_data.py`
+
+### 设计原则
+
+心理标签（如 `safe`, `risk`, `gaslighting`）**仅存于后端**，前端不包含任何评分数据。前端只发送 `questionId + value`，后端在此文件中查表获取对应标签。这样用户无法通过浏览器 DevTools、Network 面板或 localStorage 逆向评分逻辑。
+
+### 数据结构
+
+```python
+QUESTION_TAGS: Dict[int, Dict[str, Dict[str, float]]]
+# QUESTION_TAGS[question_id][choice_value] = { tag: score, ... }
+```
+
+### `lookup_tags(question_id, value) -> Dict[str, float]`
+
+根据题目 ID 和选项值查表返回隐藏标签。
+
+- 对于多选题（value 为逗号分隔如 `"A,C"`），自动合并所有选中选项的标签
+- 未匹配到的 question_id 或 value 返回空字典 `{}`
+- 文本题（Q25）无标签数据
+
+---
+
+## 12. 错误处理与日志
 
 - **日志：** 使用 Python 标准 `logging` 模块，每个模块独立 logger
 - **LLM 错误：** 捕获后以 `exc_info=True` 记录完整堆栈
@@ -463,6 +499,7 @@ JSON 解析失败时（返回原始文本）：
 | `backend/app/config.py` | 配置管理 |
 | `backend/app/api/v1/assessment.py` | 评估提交 API |
 | `backend/app/api/v1/analysis.py` | 分析流 API |
+| `backend/app/data/questions_data.py` | 题目隐藏标签数据（仅后端） |
 | `backend/app/services/scoring_service.py` | 评分逻辑 |
 | `backend/app/services/llm_service.py` | LLM 服务 |
 | `backend/app/prompts/analysis_system.txt` | 系统提示词 |
