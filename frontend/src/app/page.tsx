@@ -38,7 +38,7 @@ export default function LandingPage() {
           <span className="text-glow-red text-3xl sm:text-5xl lg:text-6xl block sm:inline">LoveAudit: </span>
           <span className="text-glow-red text-4xl sm:text-5xl lg:text-6xl block sm:inline mt-3 sm:mt-0">终身伴侣适配度评估</span>
         </h1>
-        <p className="text-base sm:text-lg lg:text-xl font-display text-neon tracking-widest mt-4">
+        <p className="text-base sm:text-lg lg:text-xl font-display text-neon tracking-widest mt-6 sm:mt-8">
           TA真的适合和你携手一生吗？
         </p>
         <div className="mt-4 h-px w-32 mx-auto bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
