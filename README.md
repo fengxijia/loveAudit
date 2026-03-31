@@ -2,59 +2,68 @@
 
 AI 驱动的婚恋对象评估平台。通过多章节心理问卷 + LLM 分析，帮助用户理性评估亲密关系。
 
+**Live:** [https://auditlove.com](https://auditlove.com)
+
 ## Features
 
-- **5 章 25 题问卷** ：涵盖安全底线、互动情绪、价值规划、家庭边界、主观体感
-- **最强分析** ：最前沿的大模型、结合多对幸福夫妻经验，帮您生成专属情感分析报告和建议
-- **关系标签卡片**：可截图分享的关系标签卡
+- **5 章 25 题心理问卷** — 涵盖安全底线、互动情绪、价值规划、家庭边界、主观体感
+- **AI 深度分析报告** — 最前沿大模型实时生成专属情感分析报告和建议（SSE 流式输出）
+- **网红名词解构** — NPD、三角测量、煤气灯等概念的理性解读
+- **关系标签卡片** — 可截图分享的人格标签卡
+- **完全匿名** — 无需注册，无数据库，所有数据仅存于浏览器本地
 
 ## Tech Stack
 
-| 层 | 技术 |
-|----|------|
+| Layer | Tech |
+|-------|------|
 | Frontend | Next.js 16, React 19, TypeScript |
-| State | Zustand |
+| State | Zustand (localStorage persist) |
 | Styling | Tailwind CSS 4, Radix UI, Framer Motion |
-| Backend | FastAPI, Python 3.10+ |
-| LLM | OpenAI-compatible API (可接入任意兼容端点) |
-| Deployment | Docker Compose |
-
+| Backend | FastAPI, Python 3.12+ |
+| LLM | OpenAI-compatible API |
+| Deployment | Docker Compose, Nginx, Cloudflare |
 
 ## Quick Start
 
-### 环境变量
+### Environment Variables
 
-在项目根目录创建 `.env`：
+Create `.env` in the project root (see `.env.example`):
 
 ```env
 API_KEY=sk-your-api-key
 API_ENDPOINT=https://your-openai-compatible-endpoint/v1
 MODEL=your-preferred-model
-DEBUG=true
+DEBUG=false
+CORS_ORIGINS=["https://your-domain.com"]
 ```
 
-### Backend
+### Development
 
 ```bash
+# Backend
 cd backend
-uv sync                # 安装依赖
-./run.sh               # 启动开发服务器 (port 8147)
-```
+uv sync
+uvicorn app.main:app --host 0.0.0.0 --port 8147 --reload
 
-### Frontend
-
-```bash
+# Frontend
 cd frontend
 npm install
-npm run dev            # 启动开发服务器 (port 8654)
+npm run dev    # http://localhost:8654
 ```
 
-### Docker
+### Production (Docker)
 
 ```bash
-docker compose up --build
+docker compose up -d --build
 # Frontend: http://localhost:3147
 # Backend:  http://localhost:8147
+```
+
+## Architecture
+
+```
+User → Cloudflare (HTTPS + CDN) → Nginx → Next.js (:3147)
+                                       ↘ FastAPI (:8147) → LLM API
 ```
 
 ## Project Structure
@@ -63,29 +72,30 @@ docker compose up --build
 .
 ├── backend/
 │   ├── app/
-│   │   ├── main.py              # FastAPI 入口
-│   │   ├── config.py            # 配置管理
-│   │   ├── api/v1/              # API 路由
-│   │   ├── services/            # 业务逻辑（评分、LLM）
-│   │   └── prompts/             # 系统提示词
-│   ├── pyproject.toml
-│   └── run.sh
+│   │   ├── main.py              # FastAPI entry
+│   │   ├── config.py            # Settings (pydantic-settings)
+│   │   ├── api/v1/              # API routes
+│   │   ├── data/                # Question tags (server-side only)
+│   │   ├── services/            # Scoring + LLM services
+│   │   └── prompts/             # System prompts
+│   ├── Dockerfile
+│   └── pyproject.toml
 ├── frontend/
 │   ├── src/
-│   │   ├── app/                 # Next.js 页面
-│   │   ├── components/          # UI 组件
-│   │   ├── hooks/               # 自定义 Hook
-│   │   ├── store/               # Zustand 状态
-│   │   ├── data/                # 问题数据（5章21题）
-│   │   └── types/               # TypeScript 类型
-│   ├── next.config.ts
+│   │   ├── app/                 # Next.js pages
+│   │   ├── components/          # UI components
+│   │   ├── hooks/               # Custom hooks (SSE)
+│   │   ├── store/               # Zustand state
+│   │   ├── data/                # Question data (no scoring tags)
+│   │   └── types/               # TypeScript types
+│   ├── Dockerfile
 │   └── package.json
-├── docs/
-│   ├── questions.md             # 题目规格文档
-│   ├── frontend_doc.md          # 前端实现文档
-│   ├── backend_doc.md           # 后端实现文档
-│   ├── love_audit_PRD.md        # 产品需求文档
-│   └── assessment_rules.md      # 评估规则
-├── .env                         # 环境变量（不入库）
-└── docker-compose.yml
+├── deploy/
+│   └── nginx.conf               # Nginx reverse proxy config
+├── docker-compose.yml
+└── .env.example
 ```
+
+## License
+
+MIT
