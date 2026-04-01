@@ -1,15 +1,15 @@
 # LoveAudit — 亲密关系深度解码系统
 
-AI 驱动的婚恋对象评估平台。通过多章节心理问卷 + LLM 分析，帮助用户理性评估亲密关系。
+AI 驱动的婚恋对象评估平台。通过多章节心理问卷 + 最前沿的大模型分析，帮助用户理性评估亲密关系。
 
 [https://auditlove.com](https://auditlove.com)
 
 ## Features
 
-- **5 章 25 题心理问卷** — 涵盖安全底线、互动情绪、价值规划、家庭边界、主观体感
-- **AI 深度分析报告** — 最前沿大模型实时生成专属情感分析报告和建议（SSE 流式输出）
-- **关系标签卡片** — 可截图分享的人格标签卡
-- **完全匿名** — 无需注册，无数据库，所有数据仅存于浏览器本地
+- **5 章 25 题问卷**：涵盖安全底线、互动情绪、价值规划、家庭边界、主观体感五大板块
+- **AI 深度分析报告**：最前沿大模型 + 多对夫妻相处经验 生成专属情感分析和建议
+- **关系标签卡片**：可截图分享的关系标签卡
+- **完全匿名**：无需注册，无数据库，所有数据仅存于浏览器本地
 
 ## Tech Stack
 
@@ -32,7 +32,6 @@ Create `.env` in the project root (see `.env.example`):
 API_KEY=sk-your-api-key
 API_ENDPOINT=https://your-openai-compatible-endpoint/v1
 MODEL=your-preferred-model
-DEBUG=false
 CORS_ORIGINS=["https://your-domain.com"]
 ```
 
