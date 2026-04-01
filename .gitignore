@@ -11,4 +11,4 @@ backend/visit_count.txt
 docs/
 background_image/
 archive/
-CLAUDE.md
+CLAUDE.mdbackend/app/prompts/
