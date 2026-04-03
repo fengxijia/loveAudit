@@ -1,19 +1,16 @@
 from __future__ import annotations
 
 import logging
-import os
 from pathlib import Path
 from typing import AsyncGenerator, Dict, Optional
 
 import openai
 
+from app.config import get_settings
+
 logger = logging.getLogger(__name__)
 
 PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
-
-API_KEY = os.getenv("API_KEY", "")
-API_ENDPOINT = os.getenv("API_ENDPOINT", "")
-MODEL = os.getenv("MODEL", "gemini-2.0-flash")
 
 
 def load_prompt(name: str) -> str:
@@ -25,17 +22,19 @@ def load_prompt(name: str) -> str:
 
 class LLMService:
     def __init__(self):
-        if not API_KEY:
+        settings = get_settings()
+        if not settings.api_key:
             raise ValueError("API_KEY environment variable is not set")
         self.client = openai.OpenAI(
-            api_key=API_KEY,
-            base_url=API_ENDPOINT if API_ENDPOINT else None,
+            api_key=settings.api_key,
+            base_url=settings.api_endpoint if settings.api_endpoint else None,
         )
-        self.model = MODEL
+        self.model = settings.model
 
     async def stream_analysis(
         self,
         answers: Dict[str, dict],
+        assessment_mode: Optional[str],
         user_personality: Optional[str],
         partner_personality: Optional[str],
         freeform_text: str,
@@ -47,32 +46,32 @@ class LLMService:
     ) -> AsyncGenerator[str, None]:
         system_prompt = load_prompt("analysis_system")
         user_prompt = self._build_prompt(
-            answers, user_personality, partner_personality,
+            answers, assessment_mode, user_personality, partner_personality,
             freeform_text, tags_summary, scores, result_type, result_label, risk_tier,
         )
 
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            temperature=0.7,
-            stream=True,
-            timeout=60,
-        )
-
         try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                temperature=0.7,
+                stream=True,
+                timeout=60,
+            )
             for chunk in response:
                 if chunk.choices and chunk.choices[0].delta.content:
                     yield chunk.choices[0].delta.content
         except Exception as e:
             logger.error("Error during LLM streaming: %s", e, exc_info=True)
-            raise
+            return
 
     def _build_prompt(
         self,
         answers: Dict[str, dict],
+        assessment_mode: Optional[str],
         user_personality: Optional[str],
         partner_personality: Optional[str],
         freeform_text: str,
@@ -84,9 +83,14 @@ class LLMService:
     ) -> str:
         parts: list[str] = []
 
+        parts.append(f"## 测评模式\n{assessment_mode or 'core25'}")
+
         # ── Full question text + user selection ──
         parts.append("## 用户完整答题记录\n")
-        for qid, answer in sorted(answers.items(), key=lambda x: int(x[0])):
+        for qid, answer in sorted(
+            answers.items(),
+            key=lambda item: (item[1].get("order", 0), int(item[0])),
+        ):
             q_text = answer.get("questionText", f"题目{qid}")
             selected = answer.get("selectedLabel", answer.get("value", "N/A"))
             parts.append(f"**{q_text}**")

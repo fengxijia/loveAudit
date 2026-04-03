@@ -8,8 +8,8 @@ const notoSerifSC = Noto_Serif_SC({ variable: "--font-noto-serif", weight: ["300
 const cormorant = Cormorant_Garamond({ variable: "--font-cormorant", subsets: ["latin"], weight: ["300", "400", "600", "700"] });
 
 export const metadata: Metadata = {
-  title: "LoveAudit | 终身伴侣适配度评估",
-  description: "AI驱动的伴侣风险评估系统",
+  title: "同路 | 长期关系评估",
+  description: "面向长期关系的结构化测评与分析",
 };
 
 export const viewport: Viewport = {

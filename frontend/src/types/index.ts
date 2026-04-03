@@ -3,6 +3,8 @@ export interface Choice {
   value: string;
 }
 
+export type AssessmentMode = "core25" | "mirror50" | "deep99";
+
 export interface Question {
   id: number;
   chapter: number;
@@ -16,6 +18,8 @@ export interface Question {
   adaptive?: boolean;
   /** Hidden psych dimension this question maps to */
   dimension: string;
+  /** Useful for mirrored / generated banks */
+  perspective?: "self" | "partner_projection";
 }
 
 export interface Chapter {
@@ -23,6 +27,17 @@ export interface Chapter {
   title: string;
   subtitle: string;
   icon: string;
+}
+
+export interface AssessmentModeMeta {
+  id: AssessmentMode;
+  title: string;
+  shortTitle: string;
+  subtitle: string;
+  description: string;
+  questionCount: number;
+  estimate: string;
+  badge: string;
 }
 
 export interface Answer {
@@ -33,6 +48,7 @@ export interface Answer {
 export type PersonalityType = "rational" | "emotional" | "balanced";
 
 export interface AssessmentState {
+  assessmentMode: AssessmentMode;
   currentIndex: number;
   answers: Answer[];
   userPersonality: PersonalityType | null;

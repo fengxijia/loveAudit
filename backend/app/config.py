@@ -16,11 +16,14 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    api_title: str = "LoveAudit API"
+    api_title: str = "同路 API"
     api_version: str = "1.0.0"
     api_prefix: str = "/api/v1"
     debug: bool = False
     cors_origins: List[str] = ["http://localhost:3147"]
+    api_key: str = ""
+    api_endpoint: str = ""
+    model: str = "gemini-2.0-flash"
 
 
 @lru_cache

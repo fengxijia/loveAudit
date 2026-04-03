@@ -3,7 +3,10 @@
 import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { questions } from "@/data/questions";
+import {
+  getAssessmentModeMeta,
+  getQuestionsForMode,
+} from "@/data/questions";
 import { useAppStore, useHydrated } from "@/store/store";
 import QuestionCard from "@/components/assessment/QuestionCard";
 import ChapterIntro from "@/components/assessment/ChapterIntro";
@@ -13,6 +16,7 @@ export default function AssessmentPage() {
   const router = useRouter();
   const hydrated = useHydrated();
   const {
+    assessmentMode,
     currentIndex,
     setCurrentIndex,
     answers,
@@ -20,6 +24,14 @@ export default function AssessmentPage() {
     setFreeformText,
   } = useAppStore();
 
+  const questions = useMemo(
+    () => getQuestionsForMode(assessmentMode),
+    [assessmentMode]
+  );
+  const modeMeta = useMemo(
+    () => getAssessmentModeMeta(assessmentMode),
+    [assessmentMode]
+  );
   const [showChapterIntro, setShowChapterIntro] = useState(true);
   const [lastChapter, setLastChapter] = useState(1);
 
@@ -97,6 +109,7 @@ export default function AssessmentPage() {
   if (showChapterIntro || needsChapterIntro) {
     return (
       <ChapterIntro
+        assessmentMode={assessmentMode}
         chapterId={currentChapter}
         onContinue={() => {
           setShowChapterIntro(false);
@@ -107,46 +120,51 @@ export default function AssessmentPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col px-4 py-6 max-w-lg mx-auto">
-      {/* Progress */}
-      <ProgressBar
-        currentIndex={currentIndex}
-        totalQuestions={questions.length}
-        currentChapter={currentChapter}
-      />
+    <div className="relative min-h-screen overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(76,102,130,0.24),transparent_30%),linear-gradient(180deg,#e3eaef,#eff3f6)]" />
+      <div className="absolute inset-x-0 top-0 h-[22rem] bg-[linear-gradient(180deg,rgba(29,44,60,0.12),transparent)]" />
+      <div className="relative z-10 mx-auto flex min-h-screen max-w-3xl flex-col px-4 py-6">
+        <div className="rounded-[2rem] border border-primary/12 bg-white/78 px-5 py-5 shadow-[0_30px_90px_rgba(28,36,50,0.08)] backdrop-blur-md">
+          <ProgressBar
+            assessmentMode={assessmentMode}
+            modeMeta={modeMeta}
+            currentIndex={currentIndex}
+            totalQuestions={questions.length}
+            currentChapter={currentChapter}
+          />
+        </div>
 
-      {/* Question */}
-      <div className="flex-1 flex items-center py-8">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentQuestion.id}
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -30 }}
-            transition={{ duration: 0.25 }}
-            className="w-full"
+        <div className="flex-1 flex items-center py-8">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentQuestion.id}
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -30 }}
+              transition={{ duration: 0.25 }}
+              className="w-full"
+            >
+              <QuestionCard
+                question={currentQuestion}
+                onAnswer={handleAnswer}
+                selectedValue={selectedAnswer?.value}
+              />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        <div className="flex justify-between items-center py-4 px-2">
+          <button
+            onClick={handleBack}
+            disabled={currentIndex === 0}
+            className="text-sm text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors cursor-pointer disabled:cursor-not-allowed"
           >
-            <QuestionCard
-              question={currentQuestion}
-              onAnswer={handleAnswer}
-              selectedValue={selectedAnswer?.value}
-            />
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* Navigation */}
-      <div className="flex justify-between items-center py-4">
-        <button
-          onClick={handleBack}
-          disabled={currentIndex === 0}
-          className="text-sm text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors font-mono cursor-pointer disabled:cursor-not-allowed"
-        >
-          ← 上一题
-        </button>
-        <span className="text-xs text-muted-foreground/50 font-mono">
-          Ch.{currentChapter}
-        </span>
+            ← 上一题
+          </button>
+          <span className="text-xs text-muted-foreground/70 tracking-[0.2em]">
+            第 {currentChapter} 章
+          </span>
+        </div>
       </div>
     </div>
   );

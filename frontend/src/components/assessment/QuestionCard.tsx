@@ -48,31 +48,31 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
   if (question.type === "text") {
     return (
       <motion.div
-        className="space-y-5"
+        className="space-y-5 rounded-[2rem] border border-primary/12 bg-[rgba(40,55,72,0.94)] p-6 text-white shadow-[0_30px_80px_rgba(28,36,50,0.18)]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h3 className="text-lg font-medium leading-relaxed">{question.question}</h3>
+        <h3 className="font-display text-2xl font-semibold leading-relaxed">{question.question}</h3>
         {question.description && (
-          <p className="text-sm text-muted-foreground mt-1">{question.description}</p>
+          <p className="text-sm text-white/68 mt-1 leading-6">{question.description}</p>
         )}
         <textarea
           value={textValue}
           onChange={(e) => setTextValue(e.target.value)}
           placeholder="在这里输入（可跳过）..."
-          className="w-full h-32 bg-secondary/50 border border-rose-accent/20 rounded-lg p-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-neon/50 resize-none"
+          className="w-full h-32 bg-white/7 border border-white/10 rounded-2xl p-4 text-sm text-white placeholder:text-white/40 focus:outline-none focus:border-white/30 resize-none"
         />
         <div className="flex gap-3">
           <button
             onClick={() => onAnswer("")}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            className="text-sm text-white/58 hover:text-white transition-colors cursor-pointer"
           >
             跳过 →
           </button>
           {textValue.trim() && (
             <button
               onClick={() => onAnswer(textValue)}
-              className="text-sm text-neon hover:text-mystic transition-colors font-mono cursor-pointer"
+              className="text-sm text-[#ffd39e] hover:text-[#ffe4be] transition-colors cursor-pointer"
             >
               提交 →
             </button>
@@ -85,13 +85,13 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
   if (question.type === "multi") {
     return (
       <motion.div
-        className="space-y-5"
+        className="space-y-5 rounded-[2rem] border border-primary/12 bg-[rgba(40,55,72,0.94)] p-6 text-white shadow-[0_30px_80px_rgba(28,36,50,0.18)]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h3 className="text-lg font-medium leading-relaxed">{question.question}</h3>
+        <h3 className="font-display text-2xl font-semibold leading-relaxed">{question.question}</h3>
         {question.description && (
-          <p className="text-sm text-muted-foreground mt-1">{question.description}</p>
+          <p className="text-sm text-white/68 mt-1 leading-6">{question.description}</p>
         )}
         <div className="space-y-3.5 mt-8">
           {question.choices?.map((choice, i) => {
@@ -107,18 +107,18 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
                 animate={false}
                 onClick={() => handleMultiToggle(choice.value)}
                 disabled={isDisabled}
-                className={`w-full text-left py-4.5 px-5 rounded-lg border transition-all duration-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+                className={`w-full text-left py-4.5 px-5 rounded-[1.25rem] border transition-all duration-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
                   isSelected
-                    ? "border-neon/60 bg-neon/10 shadow-[0_0_15px_rgba(212,116,138,0.15)]"
-                    : "border-primary/15 bg-secondary/30 hover:border-primary/40 hover:bg-secondary/60"
+                    ? "border-[#ffd39e]/60 bg-[#ffd39e]/14 shadow-[0_14px_40px_rgba(20,26,35,0.28)]"
+                    : "border-white/10 bg-white/6 hover:border-white/18 hover:bg-white/10"
                 }`}
               >
-                <span className="text-sm flex items-center gap-3">
+                <span className="text-sm flex items-center gap-3 text-white/92">
                   <span
                     className={`w-4 h-4 rounded border shrink-0 flex items-center justify-center text-xs ${
                       isSelected
-                        ? "border-neon bg-neon/20 text-neon"
-                        : "border-primary/30"
+                        ? "border-[#ffd39e] bg-[#ffd39e]/16 text-[#ffd39e]"
+                        : "border-white/28 text-transparent"
                     }`}
                   >
                     {isSelected && "✓"}
@@ -137,7 +137,7 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
           >
             <button
               onClick={handleMultiSubmit}
-              className="text-sm text-neon hover:text-mystic transition-colors font-mono cursor-pointer"
+              className="text-sm text-[#ffd39e] hover:text-[#ffe4be] transition-colors cursor-pointer"
             >
               确认选择 ({multiSelected.size}) →
             </button>
@@ -152,19 +152,19 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
     const scaleChoices = question.choices ?? [];
     return (
       <motion.div
-        className="space-y-6"
+        className="space-y-6 rounded-[2rem] border border-primary/12 bg-[rgba(40,55,72,0.94)] p-6 text-white shadow-[0_30px_80px_rgba(28,36,50,0.18)]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h3 className="text-lg font-medium leading-relaxed">{question.question}</h3>
+        <h3 className="font-display text-2xl font-semibold leading-relaxed">{question.question}</h3>
         {question.description && (
-          <p className="text-sm text-muted-foreground">{question.description}</p>
+          <p className="text-sm text-white/68 leading-6">{question.description}</p>
         )}
         <div className="pt-4">
           {/* Dots row with connecting line */}
           <div className="relative flex items-start justify-between px-2">
             {/* Connecting line behind dots */}
-            <div className="absolute top-5 left-7 right-7 h-px bg-primary/15" />
+            <div className="absolute top-5 left-7 right-7 h-px bg-white/14" />
             {scaleChoices.map((choice, i) => {
               const isSelected = selectedValue === choice.value;
               return (
@@ -177,21 +177,21 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
                     whileTap={{ scale: 0.85 }}
                     className={`w-10 h-10 rounded-full border-2 transition-all duration-300 flex items-center justify-center ${
                       isSelected
-                        ? "border-neon bg-neon/20 shadow-[0_0_12px_rgba(34,211,238,0.4)]"
-                        : "border-primary/25 bg-secondary/40 group-hover:border-primary/50 group-hover:bg-secondary/70"
+                        ? "border-[#ffd39e] bg-[#ffd39e]/14 shadow-[0_12px_30px_rgba(15,21,28,0.3)]"
+                        : "border-white/24 bg-white/8 group-hover:border-white/40 group-hover:bg-white/12"
                     }`}
                   >
                     {isSelected && (
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        className="w-3 h-3 rounded-full bg-neon"
+                        className="w-3 h-3 rounded-full bg-[#ffd39e]"
                       />
                     )}
                   </motion.div>
                   <span
                     className={`text-xs transition-colors whitespace-nowrap hidden sm:block ${
-                      isSelected ? "text-neon font-medium" : "text-muted-foreground/60"
+                      isSelected ? "text-[#ffe4be] font-medium" : "text-white/48"
                     }`}
                   >
                     {choice.label}
@@ -202,15 +202,15 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
           </div>
           {/* Mobile: show end labels */}
           <div className="flex justify-between px-2 mt-2 sm:hidden">
-            <span className="text-xs text-muted-foreground/50">{scaleChoices[0]?.label}</span>
-            <span className="text-xs text-muted-foreground/50">{scaleChoices[scaleChoices.length - 1]?.label}</span>
+            <span className="text-xs text-white/44">{scaleChoices[0]?.label}</span>
+            <span className="text-xs text-white/44">{scaleChoices[scaleChoices.length - 1]?.label}</span>
           </div>
         </div>
         {/* Skip */}
         <div className="pt-1">
           <button
             onClick={() => onAnswer("skip")}
-            className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors cursor-pointer"
+            className="text-xs text-white/52 hover:text-white/78 transition-colors cursor-pointer"
           >
             不确定 / 跳过本题
           </button>
@@ -222,13 +222,13 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
   // Single select
   return (
     <motion.div
-      className="space-y-4"
+      className="space-y-4 rounded-[2rem] border border-primary/12 bg-[rgba(40,55,72,0.94)] p-6 text-white shadow-[0_30px_80px_rgba(28,36,50,0.18)]"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      <h3 className="text-lg font-medium leading-relaxed">{question.question}</h3>
+      <h3 className="font-display text-2xl font-semibold leading-relaxed">{question.question}</h3>
       {question.description && (
-        <p className="text-sm text-muted-foreground mt-1">{question.description}</p>
+        <p className="text-sm text-white/68 mt-1 leading-6">{question.description}</p>
       )}
       <div className="space-y-3.5 mt-8">
         {question.choices?.map((choice, i) => {
@@ -239,13 +239,13 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
               initial={false}
               animate={false}
               onClick={() => onAnswer(choice.value)}
-              className={`w-full text-left py-4.5 px-5 rounded-lg border transition-all duration-300 cursor-pointer ${
+              className={`w-full text-left py-4.5 px-5 rounded-[1.25rem] border transition-all duration-300 cursor-pointer ${
                 isSelected
-                  ? "border-neon/60 bg-neon/10 shadow-[0_0_15px_rgba(212,116,138,0.15)]"
-                  : "border-primary/15 bg-secondary/30 hover:border-primary/40 hover:bg-secondary/60"
+                  ? "border-[#ffd39e]/60 bg-[#ffd39e]/14 shadow-[0_14px_40px_rgba(20,26,35,0.28)]"
+                  : "border-white/10 bg-white/6 hover:border-white/18 hover:bg-white/10"
               }`}
             >
-              <span className="text-sm leading-relaxed">{choice.label}</span>
+              <span className="text-sm leading-relaxed text-white/92">{choice.label}</span>
             </motion.button>
           );
         })}
@@ -254,7 +254,7 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
       <div className="pt-1">
         <button
           onClick={() => onAnswer("skip")}
-          className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors cursor-pointer"
+          className="text-xs text-white/52 hover:text-white/78 transition-colors cursor-pointer"
         >
           不确定 / 跳过本题
         </button>

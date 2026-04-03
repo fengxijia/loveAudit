@@ -1,10 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { useEffect, useState } from "react";
-import { Answer, AnalysisResult, PersonalityType } from "@/types";
+import { Answer, AnalysisResult, AssessmentMode, PersonalityType } from "@/types";
 
 interface AppState {
   // Assessment
+  assessmentMode: AssessmentMode;
   currentIndex: number;
   answers: Answer[];
   userPersonality: PersonalityType | null;
@@ -17,6 +18,7 @@ interface AppState {
   isAnalyzing: boolean;
 
   // Actions
+  setAssessmentMode: (mode: AssessmentMode) => void;
   setCurrentIndex: (index: number) => void;
   addAnswer: (answer: Answer) => void;
   setUserPersonality: (type: PersonalityType) => void;
@@ -32,6 +34,7 @@ interface AppState {
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
+      assessmentMode: "core25",
       currentIndex: 0,
       answers: [],
       userPersonality: null,
@@ -41,6 +44,18 @@ export const useAppStore = create<AppState>()(
       streamingText: "",
       isAnalyzing: false,
 
+      setAssessmentMode: (mode) =>
+        set({
+          assessmentMode: mode,
+          currentIndex: 0,
+          answers: [],
+          userPersonality: null,
+          partnerPersonality: null,
+          freeformText: "",
+          analysisResult: null,
+          streamingText: "",
+          isAnalyzing: false,
+        }),
       setCurrentIndex: (index) => set({ currentIndex: index }),
       addAnswer: (answer) =>
         set((state) => ({
@@ -59,6 +74,7 @@ export const useAppStore = create<AppState>()(
       resetStreamingText: () => set({ streamingText: "" }),
       reset: () =>
         set({
+          assessmentMode: "core25",
           currentIndex: 0,
           answers: [],
           userPersonality: null,
@@ -73,6 +89,7 @@ export const useAppStore = create<AppState>()(
       name: "loveaudit-store",
       // Only persist assessment progress and results — skip transient streaming state
       partialize: (state) => ({
+        assessmentMode: state.assessmentMode,
         currentIndex: state.currentIndex,
         answers: state.answers,
         userPersonality: state.userPersonality,

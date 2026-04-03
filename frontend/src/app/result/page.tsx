@@ -102,7 +102,7 @@ export default function ResultPage() {
       const { toBlob } = await import("html-to-image");
 
       const blob = await toBlob(captureRef.current, {
-        backgroundColor: "#0a0608",
+        backgroundColor: "#f6efe4",
         pixelRatio: 2,
         style: {
           // Ensure animations don't affect the screenshot
@@ -117,9 +117,9 @@ export default function ResultPage() {
       }
 
       if (navigator.share && navigator.canShare?.({ files: [new File([], "")] })) {
-        const file = new File([blob], "love-audit-result.png", { type: "image/png" });
+        const file = new File([blob], "tonglu-report.png", { type: "image/png" });
         try {
-          await navigator.share({ files: [file], title: "LoveAudit 测评结果" });
+          await navigator.share({ files: [file], title: "关系评估结果" });
           return;
         } catch {
           // fall through to download
@@ -129,7 +129,7 @@ export default function ResultPage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "love-audit-result.png";
+      a.download = "tonglu-report.png";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -175,14 +175,13 @@ export default function ResultPage() {
         data-capture
         style={{
           padding: "1.5rem 0",
-          backgroundColor: "rgba(10, 6, 8, 0.6)",
+          backgroundColor: "rgba(255, 250, 243, 0.72)",
         }}
         className="space-y-5 relative z-10"
       >
-        {/* Header */}
         <motion.div className="text-center mb-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <p style={{ fontSize: "1.25rem", fontWeight: "bold", fontFamily: "var(--font-cormorant), serif", color: "#e8a0b4", letterSpacing: "0.15em", textShadow: "0 0 10px #d4748a, 0 0 30px rgba(212, 116, 138, 0.7), 0 0 60px rgba(212, 116, 138, 0.4), 0 0 100px rgba(155, 28, 49, 0.3)" }}>
-            ANALYSIS REPORT
+          <p style={{ fontSize: "1.25rem", fontWeight: "bold", fontFamily: "var(--font-cormorant), serif", color: "var(--primary)", letterSpacing: "0.15em", textShadow: "0 0 18px rgba(49, 86, 111, 0.15)" }}>
+            关系评估结果
           </p>
         </motion.div>
 
@@ -226,29 +225,18 @@ export default function ResultPage() {
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2 }}
       >
-        <Button variant="neon" className="w-full bg-black/80 backdrop-blur-sm" onClick={handleSaveImage} disabled={saving}>
+        <Button variant="neon" className="w-full bg-card/90 backdrop-blur-sm" onClick={handleSaveImage} disabled={saving}>
           {saving ? "生成中..." : "保存/分享完整报告"}
         </Button>
         <Button
           variant="outline"
-          className="w-full bg-black/80 backdrop-blur-sm"
+          className="w-full bg-card/90 backdrop-blur-sm"
           onClick={() => { useAppStore.getState().reset(); router.push("/"); }}
         >
           重新测评
         </Button>
-        <p className="text-xs text-center text-muted-foreground/50 font-mono bg-background/60 backdrop-blur-sm px-4 py-2 rounded-lg leading-relaxed">
-          LoveAudit · 本测评不构成医学或心理诊断，仅供参考
-          <br />
-          如果你觉得有用，请Star可爱作者的{" "}
-          <a
-            href="https://github.com/fengxijia/loveAudit"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-neon/80 hover:text-neon underline underline-offset-2 transition-colors"
-          >
-            GitHub
-          </a>{" "}
-          叭～
+        <p className="text-xs text-center text-muted-foreground/60 bg-background/60 backdrop-blur-sm px-4 py-2 rounded-lg leading-relaxed">
+          本测评用于关系观察与沟通参考，不构成医学、心理或法律意见。
         </p>
       </motion.div>
     </div>

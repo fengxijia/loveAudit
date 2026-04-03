@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const tips = [
-  { title: "认知行为疗法 (CBT)", content: "你的想法不等于事实。学会质疑消极的自动化思维，是走出焦虑的第一步。" },
-  { title: "你值得被好好对待", content: "健康的关系应该让你感到安全和被尊重，而不是小心翼翼。" },
-  { title: "关于「配得感」", content: "你不需要变得完美才值得被爱。接纳真实的自己，是建立健康关系的基础。" },
-  { title: "分清责任边界", content: "对方的情绪不是你的责任，你的幸福也不该完全依赖对方。" },
-  { title: "识别情绪操控", content: "如果对方经常让你觉得「一切都是你的错」，这可能是情绪操控的信号。" },
-  { title: "关于「沉没成本」", content: "已经投入的时间不是继续一段不健康关系的理由。你的未来比过去更重要。" },
+  { title: "结果说明", content: "系统会优先整理风险信号、冲突方式和长期协作能力，再生成文字报告。" },
+  { title: "关于风险", content: "安全感、边界和尊重通常比短期情绪更能说明关系质量。" },
+  { title: "关于沟通", content: "如果多道题都让你长期感到犹豫或压抑，这本身就是值得讨论的信息。" },
+  { title: "关于适配", content: "长期关系的适配不仅是喜欢，还包括现实协作、承诺和修复能力。" },
+  { title: "关于判断", content: "这份结果更适合作为沟通和观察的参考，而不是替你做最终决定。" },
+  { title: "关于复盘", content: "如果你们正处在冲突期，间隔一段时间再次作答，往往更容易看出模式。" },
 ];
 
 export default function CbtTips() {
@@ -33,7 +33,7 @@ export default function CbtTips() {
           transition={{ duration: 0.4 }}
           className="text-center px-6 absolute"
         >
-          <p className="text-xs font-mono text-neon/70 mb-2">
+          <p className="text-xs uppercase tracking-[0.2em] text-primary/70 mb-2">
             {tips[current].title}
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
