@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     debug: bool = False
     cors_origins: List[str] = ["http://localhost:3147"]
 
+    api_key: str = ""
+    api_endpoint: str = ""
+    model: str = "gemini-2.5-pro"
+
 
 @lru_cache
 def get_settings() -> Settings:

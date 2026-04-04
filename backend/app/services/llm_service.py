@@ -1,19 +1,16 @@
 from __future__ import annotations
 
 import logging
-import os
 from pathlib import Path
 from typing import AsyncGenerator, Dict, Optional
 
 import openai
 
+from app.config import get_settings
+
 logger = logging.getLogger(__name__)
 
 PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
-
-API_KEY = os.getenv("API_KEY", "")
-API_ENDPOINT = os.getenv("API_ENDPOINT", "")
-MODEL = os.getenv("MODEL", "gemini-2.0-flash")
 
 
 def load_prompt(name: str) -> str:
@@ -25,13 +22,14 @@ def load_prompt(name: str) -> str:
 
 class LLMService:
     def __init__(self):
-        if not API_KEY:
+        settings = get_settings()
+        if not settings.api_key:
             raise ValueError("API_KEY environment variable is not set")
         self.client = openai.OpenAI(
-            api_key=API_KEY,
-            base_url=API_ENDPOINT if API_ENDPOINT else None,
+            api_key=settings.api_key,
+            base_url=settings.api_endpoint if settings.api_endpoint else None,
         )
-        self.model = MODEL
+        self.model = settings.model
 
     async def stream_analysis(
         self,
