@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
   devIndicators: false,
   async rewrites() {
     const backendUrl = process.env.BACKEND_URL || "http://localhost:8147";
@@ -12,6 +11,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  ...(process.env.VERCEL ? {} : { output: "standalone" as const }),
 };
 
 export default nextConfig;

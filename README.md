@@ -1,6 +1,6 @@
 # LoveAudit — 亲密关系深度解码系统
 
-AI 驱动的婚恋对象评估平台。通过多章节心理问卷 + 最前沿的大模型分析，帮助用户理性评估亲密关系。
+AI 驱动的婚恋对象评估平台。通过多章节心理问卷 + 结构化分析，帮助用户理性评估亲密关系。
 
 [https://auditlove.com](https://auditlove.com)
 
@@ -20,19 +20,20 @@ AI 驱动的婚恋对象评估平台。通过多章节心理问卷 + 最前沿�
 | Styling | Tailwind CSS 4, Radix UI, Framer Motion |
 | Backend | FastAPI, Python 3.12+ |
 | LLM | OpenAI-compatible API |
-| Deployment | Docker Compose, Nginx, Cloudflare |
+| Deployment | Vercel (frontend + backend) / Docker Compose |
 
 ## Quick Start
 
-### Environment Variables
+### Local Environment Variables
 
 Create `.env` in the project root (see `.env.example`):
 
 ```env
+BACKEND_URL=http://localhost:8147
 API_KEY=sk-your-api-key
 API_ENDPOINT=https://your-openai-compatible-endpoint/v1
 MODEL=your-preferred-model
-CORS_ORIGINS=["https://your-domain.com"]
+CORS_ORIGINS=["http://localhost:8654","https://your-domain.com"]
 ```
 
 ### Development
@@ -57,11 +58,54 @@ docker compose up -d --build
 # Backend:  http://localhost:8147
 ```
 
+## Vercel Deployment
+
+This repository is set up for **two Vercel projects**:
+
+1. **Frontend project**
+   - Root Directory: `frontend`
+   - Framework Preset: `Next.js`
+   - Environment Variable:
+
+   ```env
+   BACKEND_URL=https://your-backend-project.vercel.app
+   ```
+
+2. **Backend project**
+   - Root Directory: `backend`
+   - Runtime: Python
+   - Entry point: `api/index.py`
+   - Environment Variables:
+
+   ```env
+   API_KEY=your-api-key
+   API_ENDPOINT=https://your-openai-compatible-endpoint/v1
+   MODEL=your-model-name
+   DEBUG=false
+   CORS_ORIGINS=["https://your-frontend-project.vercel.app"]
+   ```
+
+### Deploy Order
+
+1. Deploy the **backend** Vercel project first and copy its production URL.
+2. Set `BACKEND_URL` in the **frontend** Vercel project to that backend URL.
+3. Redeploy the **frontend** project.
+
+### Notes
+
+- `frontend/next.config.ts` rewrites `/api/*` to `BACKEND_URL/api/*`.
+- `backend/vercel.json` routes all backend requests into the FastAPI app.
+- `backend/api/index.py` is the Vercel Python function entrypoint.
+- Local Docker and local dev still work; `standalone` output is only used outside Vercel.
+
 ## Architecture
 
 ```
-User → Cloudflare (HTTPS + CDN) → Nginx → Next.js (:3147)
-                                       ↘ FastAPI (:8147) → LLM API
+Local:
+User → Next.js (:8654) → rewrite `/api/*` → FastAPI (:8147) → LLM API
+
+Vercel:
+User → Frontend Vercel Project → rewrite `/api/*` → Backend Vercel Project → LLM API
 ```
 
 ## Project Structure
@@ -69,6 +113,8 @@ User → Cloudflare (HTTPS + CDN) → Nginx → Next.js (:3147)
 ```
 .
 ├── backend/
+│   ├── api/
+│   │   └── index.py            # Vercel Python entry
 │   ├── app/
 │   │   ├── main.py              # FastAPI entry
 │   │   ├── config.py            # Settings (pydantic-settings)
@@ -77,7 +123,9 @@ User → Cloudflare (HTTPS + CDN) → Nginx → Next.js (:3147)
 │   │   ├── services/            # Scoring + LLM services
 │   │   └── prompts/             # System prompts
 │   ├── Dockerfile
-│   └── pyproject.toml
+│   ├── pyproject.toml
+│   ├── requirements.txt
+│   └── vercel.json
 ├── frontend/
 │   ├── src/
 │   │   ├── app/                 # Next.js pages
@@ -87,7 +135,8 @@ User → Cloudflare (HTTPS + CDN) → Nginx → Next.js (:3147)
 │   │   ├── data/                # Question data (no scoring tags)
 │   │   └── types/               # TypeScript types
 │   ├── Dockerfile
-│   └── package.json
+│   ├── package.json
+│   └── .env.example
 ├── deploy/
 │   └── nginx.conf               # Nginx reverse proxy config
 ├── docker-compose.yml
