@@ -10,6 +10,9 @@ const cormorant = Cormorant_Garamond({ variable: "--font-cormorant", subsets: ["
 export const metadata: Metadata = {
   title: "LoveAudit | 终身伴侣适配度评估",
   description: "AI驱动的伴侣风险评估系统",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export const viewport: Viewport = {
