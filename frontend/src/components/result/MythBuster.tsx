@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { useT } from "@/i18n";
 
 interface MythBusterProps {
   myths: Array<{
@@ -12,6 +13,7 @@ interface MythBusterProps {
 }
 
 export default function MythBuster({ myths }: MythBusterProps) {
+  const t = useT();
   if (!myths?.length) return null;
 
   return (
@@ -23,10 +25,10 @@ export default function MythBuster({ myths }: MythBusterProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-base font-mono text-neon/80">
-            💥 网红名词真相解构
+            {t.mythBuster.title}
           </CardTitle>
           <p className="text-xs text-muted-foreground">
-            那些让你越想越害怕的名词，真相是什么？
+            {t.mythBuster.subtitle}
           </p>
         </CardHeader>
         <CardContent className="space-y-5">

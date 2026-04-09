@@ -31,7 +31,7 @@ export function useSSE(url: string, options: SSEOptions = {}) {
       const timeoutMs = options.timeoutMs ?? 90000;
       const timeoutId = setTimeout(() => {
         abortControllerRef.current?.abort();
-        const err = new Error("分析超时，请重试");
+        const err = new Error("Analysis timed out / 分析超时，请重试");
         setError(err);
         options.onError?.(err);
       }, timeoutMs);

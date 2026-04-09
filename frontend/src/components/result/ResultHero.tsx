@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import type { ResultType } from "@/types";
+import { useT } from "@/i18n";
 
 interface ResultHeroProps {
   resultType: ResultType;
@@ -21,6 +22,7 @@ const CONFIG: Record<string, { color: string; glow: string }> = {
 const FALLBACK = { color: "text-purple-300", glow: "" };
 
 export default function ResultHero({ resultType, resultLabel, summaryLine }: ResultHeroProps) {
+  const t = useT();
   const cfg = CONFIG[resultType] || FALLBACK;
 
   return (
@@ -31,7 +33,7 @@ export default function ResultHero({ resultType, resultLabel, summaryLine }: Res
       transition={{ duration: 0.5, type: "spring" }}
     >
       <p className="text-xs font-mono text-muted-foreground/60 tracking-widest mb-4">
-        你的关系更像
+        {t.resultHero.label}
       </p>
       <h2 className={`text-2xl font-bold font-display ${cfg.color} mb-3`}>{resultLabel}</h2>
       {summaryLine && (

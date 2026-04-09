@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAppStore, useHydrated } from "@/store/store";
+import { useT } from "@/i18n";
 import ResultHero from "@/components/result/ResultHero";
 import ScoreBars from "@/components/result/ScoreBars";
 import WarningBlock from "@/components/result/WarningBlock";
@@ -34,7 +35,7 @@ function normalizeResult(raw: unknown): AnalysisResult | null {
     return {
       scores: { safety: 50, compatibility: 50, repair: 50 },
       resultType: (typeMap[oldVerdict] || "grinding_growth") as AnalysisResult["resultType"],
-      resultLabel: (r.verdictTitle as string) || "评估完成",
+      resultLabel: (r.verdictTitle as string) || "",
       riskTier: oldVerdict === "run" ? "high" : "low",
       warnings: [],
       summaryLine: (r.verdictDescription as string) || "",
@@ -65,6 +66,7 @@ function parseStreamingText(text: string): AnalysisResult | null {
 export default function ResultPage() {
   const router = useRouter();
   const hydrated = useHydrated();
+  const t = useT();
   const { analysisResult, streamingText, answers } = useAppStore();
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const captureRef = useRef<HTMLDivElement>(null);
@@ -105,21 +107,20 @@ export default function ResultPage() {
         backgroundColor: "#0a0608",
         pixelRatio: 2,
         style: {
-          // Ensure animations don't affect the screenshot
           transform: "none",
           opacity: "1",
         },
       });
 
       if (!blob) {
-        alert("图片生成失败，请重试");
+        alert(t.result.imageFailed);
         return;
       }
 
       if (navigator.share && navigator.canShare?.({ files: [new File([], "")] })) {
         const file = new File([blob], "love-audit-result.png", { type: "image/png" });
         try {
-          await navigator.share({ files: [file], title: "LoveAudit 测评结果" });
+          await navigator.share({ files: [file], title: t.result.shareTitle });
           return;
         } catch {
           // fall through to download
@@ -136,11 +137,11 @@ export default function ResultPage() {
       URL.revokeObjectURL(url);
     } catch (e) {
       console.error("Save image error:", e);
-      alert("图片生成失败，请重试");
+      alert(t.result.imageFailed);
     } finally {
       setSaving(false);
     }
-  }, [saving]);
+  }, [saving, t]);
 
   if (!result) {
     const hasData = analysisResult || streamingText;
@@ -148,19 +149,19 @@ export default function ResultPage() {
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4">
         {answers.length > 0 && !hasData ? (
           <>
-            <p className="text-red-400 font-mono text-sm">分析结果获取失败</p>
-            <p className="text-muted-foreground text-xs">可能是网络问题或服务暂时不可用</p>
+            <p className="text-red-400 font-mono text-sm">{t.result.fetchFailed}</p>
+            <p className="text-muted-foreground text-xs">{t.result.fetchFailedSub}</p>
             <div className="flex gap-3">
               <Button variant="outline" onClick={() => { useAppStore.getState().setIsAnalyzing(true); router.push("/analyzing"); }}>
-                重新分析
+                {t.result.reanalyze}
               </Button>
               <Button variant="outline" onClick={() => { useAppStore.getState().reset(); router.push("/"); }}>
-                重新测评
+                {t.result.restart}
               </Button>
             </div>
           </>
         ) : (
-          <p className="text-muted-foreground font-mono text-sm">加载中...</p>
+          <p className="text-muted-foreground font-mono text-sm">{t.result.loading}</p>
         )}
       </div>
     );
@@ -169,7 +170,7 @@ export default function ResultPage() {
   return (
     <div className="min-h-screen px-4 py-8 max-w-lg mx-auto relative">
       <FloralBg />
-      {/* ── Capturable area ── */}
+      {/* Capturable area */}
       <div
         ref={captureRef}
         data-capture
@@ -202,7 +203,7 @@ export default function ResultPage() {
         {/* Insights */}
         <InsightCards insights={result.insights} />
 
-        {/* Reframe: "你可能以为" vs "更接近的真相" */}
+        {/* Reframe */}
         <ReframeBlock reframes={result.reframe} />
 
         {/* Advice */}
@@ -219,7 +220,7 @@ export default function ResultPage() {
         )}
       </div>
 
-      {/* ── Actions (outside capture area) ── */}
+      {/* Actions (outside capture area) */}
       <motion.div
         className="space-y-3 pt-6 relative z-10"
         initial={{ opacity: 0 }}
@@ -227,19 +228,19 @@ export default function ResultPage() {
         transition={{ delay: 1.2 }}
       >
         <Button variant="neon" className="w-full bg-black/80 backdrop-blur-sm" onClick={handleSaveImage} disabled={saving}>
-          {saving ? "生成中..." : "保存/分享完整报告"}
+          {saving ? t.result.saving : t.result.saveShare}
         </Button>
         <Button
           variant="outline"
           className="w-full bg-black/80 backdrop-blur-sm"
           onClick={() => { useAppStore.getState().reset(); router.push("/"); }}
         >
-          重新测评
+          {t.result.restart}
         </Button>
         <p className="text-xs text-center text-muted-foreground/50 font-mono bg-background/60 backdrop-blur-sm px-4 py-2 rounded-lg leading-relaxed">
-          LoveAudit · 本测评不构成医学或心理诊断，仅供参考
+          {t.result.disclaimer}
           <br />
-          如果你觉得有用，请Star可爱作者的{" "}
+          {t.result.starPrompt}{" "}
           <a
             href="https://github.com/fengxijia/loveAudit"
             target="_blank"
@@ -247,8 +248,8 @@ export default function ResultPage() {
             className="text-neon/80 hover:text-neon underline underline-offset-2 transition-colors"
           >
             GitHub
-          </a>{" "}
-          叭～
+          </a>
+          {t.result.starSuffix}
         </p>
       </motion.div>
     </div>

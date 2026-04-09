@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useState, useCallback } from "react";
 import type { Question } from "@/types";
+import { useT } from "@/i18n";
 
 interface QuestionCardProps {
   question: Question;
@@ -11,6 +12,7 @@ interface QuestionCardProps {
 }
 
 export default function QuestionCard({ question, onAnswer, selectedValue }: QuestionCardProps) {
+  const t = useT();
   const [textValue, setTextValue] = useState("");
   const [multiSelected, setMultiSelected] = useState<Set<string>>(new Set());
 
@@ -21,7 +23,7 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
         if (next.has(value)) {
           next.delete(value);
         } else {
-          // "F" = "基本没有明显消耗" is the positive/exclusive option
+          // "F" = exclusive option
           if (value === "F") {
             return new Set(["F"]);
           }
@@ -59,7 +61,7 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
         <textarea
           value={textValue}
           onChange={(e) => setTextValue(e.target.value)}
-          placeholder="在这里输入（可跳过）..."
+          placeholder={t.assessment.textPlaceholder}
           className="w-full h-32 bg-secondary/50 border border-rose-accent/20 rounded-lg p-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-neon/50 resize-none"
         />
         <div className="flex gap-3">
@@ -67,14 +69,14 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
             onClick={() => onAnswer("")}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
-            跳过 →
+            {t.assessment.skip}
           </button>
           {textValue.trim() && (
             <button
               onClick={() => onAnswer(textValue)}
               className="text-sm text-neon hover:text-mystic transition-colors font-mono cursor-pointer"
             >
-              提交 →
+              {t.assessment.submit}
             </button>
           )}
         </div>
@@ -94,7 +96,7 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
           <p className="text-sm text-muted-foreground mt-1">{question.description}</p>
         )}
         <div className="space-y-3.5 mt-8">
-          {question.choices?.map((choice, i) => {
+          {question.choices?.map((choice) => {
             const isSelected = multiSelected.has(choice.value);
             const isDisabled =
               !isSelected &&
@@ -139,7 +141,7 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
               onClick={handleMultiSubmit}
               className="text-sm text-neon hover:text-mystic transition-colors font-mono cursor-pointer"
             >
-              确认选择 ({multiSelected.size}) →
+              {t.assessment.confirmMulti(multiSelected.size)}
             </button>
           </motion.div>
         )}
@@ -165,7 +167,7 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
           <div className="relative flex items-start justify-between px-2">
             {/* Connecting line behind dots */}
             <div className="absolute top-5 left-7 right-7 h-px bg-primary/15" />
-            {scaleChoices.map((choice, i) => {
+            {scaleChoices.map((choice) => {
               const isSelected = selectedValue === choice.value;
               return (
                 <button
@@ -212,7 +214,7 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
             onClick={() => onAnswer("skip")}
             className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors cursor-pointer"
           >
-            不确定 / 跳过本题
+            {t.assessment.skipQuestion}
           </button>
         </div>
       </motion.div>
@@ -231,7 +233,7 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
         <p className="text-sm text-muted-foreground mt-1">{question.description}</p>
       )}
       <div className="space-y-3.5 mt-8">
-        {question.choices?.map((choice, i) => {
+        {question.choices?.map((choice) => {
           const isSelected = selectedValue === choice.value;
           return (
             <motion.button
@@ -256,7 +258,7 @@ export default function QuestionCard({ question, onAnswer, selectedValue }: Ques
           onClick={() => onAnswer("skip")}
           className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors cursor-pointer"
         >
-          不确定 / 跳过本题
+          {t.assessment.skipQuestion}
         </button>
       </div>
     </motion.div>

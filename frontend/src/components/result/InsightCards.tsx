@@ -1,12 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useT } from "@/i18n";
 
 interface InsightCardsProps {
   insights: string[];
 }
 
 export default function InsightCards({ insights }: InsightCardsProps) {
+  const t = useT();
   if (!insights || insights.length === 0) return null;
 
   return (
@@ -16,7 +18,7 @@ export default function InsightCards({ insights }: InsightCardsProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4 }}
     >
-      <p className="text-xs font-display text-neon/70 tracking-widest mb-4">系统识别到</p>
+      <p className="text-xs font-display text-neon/70 tracking-widest mb-4">{t.insightCards.title}</p>
       <div className="space-y-3">
         {insights.map((insight, i) => (
           <motion.div

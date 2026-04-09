@@ -1,7 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { chapters } from "@/data/questions";
+import { useLocale } from "@/i18n";
+import { useT } from "@/i18n";
+import { getChapters } from "@/data/getQuestions";
 
 interface ChapterIntroProps {
   chapterId: number;
@@ -9,6 +11,9 @@ interface ChapterIntroProps {
 }
 
 export default function ChapterIntro({ chapterId, onContinue }: ChapterIntroProps) {
+  const locale = useLocale();
+  const t = useT();
+  const chapters = getChapters(locale);
   const chapter = chapters.find((c) => c.id === chapterId);
   if (!chapter) return null;
 
@@ -35,7 +40,7 @@ export default function ChapterIntro({ chapterId, onContinue }: ChapterIntroProp
         className="mt-6"
       >
         <p className="text-xs font-mono text-neon/70 tracking-[0.3em] mb-4">
-          CHAPTER {chapter.id} / 5
+          {t.assessment.chapterLabel(chapter.id)}
         </p>
         <h2 className="text-2xl font-bold font-display text-glow-red mb-3">{chapter.title}</h2>
         <p className="text-sm text-muted-foreground/80 font-display leading-relaxed">{chapter.subtitle}</p>
@@ -55,7 +60,7 @@ export default function ChapterIntro({ chapterId, onContinue }: ChapterIntroProp
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
       >
-        点击继续 →
+        {t.assessment.continueBtn}
       </motion.button>
     </motion.div>
   );

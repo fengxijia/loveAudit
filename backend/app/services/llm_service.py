@@ -42,11 +42,18 @@ class LLMService:
         result_type: str,
         result_label: str,
         risk_tier: str,
+        locale: str = "zh",
     ) -> AsyncGenerator[str, None]:
-        system_prompt = load_prompt("analysis_system")
+        if locale == "en":
+            system_prompt = load_prompt("analysis_system_en")
+            if not system_prompt:
+                system_prompt = load_prompt("analysis_system")
+        else:
+            system_prompt = load_prompt("analysis_system")
         user_prompt = self._build_prompt(
             answers, user_personality, partner_personality,
             freeform_text, tags_summary, scores, result_type, result_label, risk_tier,
+            locale=locale,
         )
 
         response = self.client.chat.completions.create(
@@ -79,42 +86,68 @@ class LLMService:
         result_type: str,
         result_label: str,
         risk_tier: str,
+        locale: str = "zh",
     ) -> str:
         parts: list[str] = []
 
-        # ── Full question text + user selection ──
-        parts.append("## 用户完整答题记录\n")
-        for qid, answer in sorted(answers.items(), key=lambda x: int(x[0])):
-            q_text = answer.get("questionText", f"题目{qid}")
-            selected = answer.get("selectedLabel", answer.get("value", "N/A"))
-            parts.append(f"**{q_text}**")
-            parts.append(f"用户选择：{selected}\n")
+        if locale == "en":
+            parts.append("## User's Full Answer Record\n")
+            for qid, answer in sorted(answers.items(), key=lambda x: int(x[0])):
+                q_text = answer.get("questionText", f"Question {qid}")
+                selected = answer.get("selectedLabel", answer.get("value", "N/A"))
+                parts.append(f"**{q_text}**")
+                parts.append(f"User selected: {selected}\n")
 
-        # ── Personality types ──
-        parts.append("## 性格类型")
-        parts.append(f"用户: {user_personality or '未知'}")
-        parts.append(f"伴侣: {partner_personality or '未知'}")
+            parts.append("## Personality Types")
+            parts.append(f"User: {user_personality or 'Unknown'}")
+            parts.append(f"Partner: {partner_personality or 'Unknown'}")
 
-        # ── Freeform text ──
-        if freeform_text:
-            parts.append(f"\n## 用户补充说明\n{freeform_text}")
+            if freeform_text:
+                parts.append(f"\n## User's Additional Notes\n{freeform_text}")
 
-        # ── Tag summary ──
-        parts.append("\n## 心理标签汇总")
-        for tag, score in sorted(tags_summary.items(), key=lambda x: -x[1]):
-            parts.append(f"- {tag}: {score}")
+            parts.append("\n## Psychological Tag Summary")
+            for tag, score in sorted(tags_summary.items(), key=lambda x: -x[1]):
+                parts.append(f"- {tag}: {score}")
 
-        # ── Backend pre-computed results ──
-        parts.append("\n## 系统预评估")
-        parts.append(f"关系类型: {result_label} ({result_type})")
-        parts.append(f"风险等级: {risk_tier}")
-        parts.append(f"安全指数: {scores.get('safety', 50)}/100")
-        parts.append(f"适配指数: {scores.get('compatibility', 50)}/100")
-        parts.append(f"修复指数: {scores.get('repair', 50)}/100")
-        parts.append(f"消耗程度: {scores.get('drain', 30)}/100")
+            parts.append("\n## System Pre-Assessment")
+            parts.append(f"Relationship type: {result_label} ({result_type})")
+            parts.append(f"Risk tier: {risk_tier}")
+            parts.append(f"Safety index: {scores.get('safety', 50)}/100")
+            parts.append(f"Compatibility index: {scores.get('compatibility', 50)}/100")
+            parts.append(f"Repair index: {scores.get('repair', 50)}/100")
+            parts.append(f"Drain level: {scores.get('drain', 30)}/100")
 
-        parts.append("\n请根据以上数据，紧扣用户的具体回答，生成分析报告。"
-                     "insights 部分必须引用用户的实际选择来分析，不要泛泛而谈。")
+            parts.append("\nBased on the above data, generate the analysis report closely tied to the user's specific answers. "
+                         "The insights section must reference the user's actual choices — avoid generic statements.")
+        else:
+            parts.append("## 用户完整答题记录\n")
+            for qid, answer in sorted(answers.items(), key=lambda x: int(x[0])):
+                q_text = answer.get("questionText", f"题目{qid}")
+                selected = answer.get("selectedLabel", answer.get("value", "N/A"))
+                parts.append(f"**{q_text}**")
+                parts.append(f"用户选择：{selected}\n")
+
+            parts.append("## 性格类型")
+            parts.append(f"用户: {user_personality or '未知'}")
+            parts.append(f"伴侣: {partner_personality or '未知'}")
+
+            if freeform_text:
+                parts.append(f"\n## 用户补充说明\n{freeform_text}")
+
+            parts.append("\n## 心理标签汇总")
+            for tag, score in sorted(tags_summary.items(), key=lambda x: -x[1]):
+                parts.append(f"- {tag}: {score}")
+
+            parts.append("\n## 系统预评估")
+            parts.append(f"关系类型: {result_label} ({result_type})")
+            parts.append(f"风险等级: {risk_tier}")
+            parts.append(f"安全指数: {scores.get('safety', 50)}/100")
+            parts.append(f"适配指数: {scores.get('compatibility', 50)}/100")
+            parts.append(f"修复指数: {scores.get('repair', 50)}/100")
+            parts.append(f"消耗程度: {scores.get('drain', 30)}/100")
+
+            parts.append("\n请根据以上数据，紧扣用户的具体回答，生成分析报告。"
+                         "insights 部分必须引用用户的实际选择来分析，不要泛泛而谈。")
         return "\n".join(parts)
 
 

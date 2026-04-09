@@ -2,12 +2,14 @@
 
 import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { useT } from "@/i18n";
 
 interface TipsProps {
   tips: string[];
 }
 
 export default function Tips({ tips }: TipsProps) {
+  const t = useT();
   if (!tips?.length) return null;
 
   return (
@@ -19,7 +21,7 @@ export default function Tips({ tips }: TipsProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-base font-display text-neon/80">
-            相处建议
+            {t.tips.title}
           </CardTitle>
         </CardHeader>
         <CardContent>

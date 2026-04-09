@@ -6,9 +6,14 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import HookCards from "@/components/landing/HookCards";
 import FloralBg from "@/components/landing/FloralBg";
+import { useT } from "@/i18n";
+import { useAppStore } from "@/store/store";
 
 export default function LandingPage() {
   const router = useRouter();
+  const t = useT();
+  const { locale, setLocale } = useAppStore();
+  const isEn = locale === "en";
   const [visitCount, setVisitCount] = useState<number | null>(null);
 
   useEffect(() => {
@@ -23,6 +28,14 @@ export default function LandingPage() {
       {/* Decorative mandala & rose line art background */}
       <FloralBg />
 
+      {/* Language toggle */}
+      <button
+        onClick={() => setLocale(locale === "zh" ? "en" : "zh")}
+        className="fixed top-5 right-12 z-50 w-14 h-14 rounded-full border-2 border-neon/60 bg-card backdrop-blur-sm text-base font-bold font-mono text-neon shadow-[0_0_10px_rgba(34,211,238,0.2)] hover:bg-neon/10 hover:border-neon hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all cursor-pointer flex items-center justify-center"
+      >
+        {t.langToggle}
+      </button>
+
       {/* Top spacer — push all content to lower portion */}
       <div className="flex-[10] sm:flex-[4] lg:flex-[1]" />
 
@@ -35,11 +48,11 @@ export default function LandingPage() {
         transition={{ duration: 0.6 }}
       >
         <h1 className="font-bold mb-2 font-display">
-          <span className="text-glow-red text-3xl sm:text-5xl lg:text-6xl block sm:inline">LoveAudit: </span>
-          <span className="text-glow-red text-4xl sm:text-5xl lg:text-6xl block sm:inline mt-3 sm:mt-0">终身伴侣适配度评估</span>
+          <span className={`text-glow-red block sm:inline ${isEn ? "text-2xl sm:text-4xl lg:text-5xl" : "text-3xl sm:text-5xl lg:text-6xl"}`}>LoveAudit: </span>
+          <span className={`text-glow-red block sm:inline mt-3 sm:mt-0 ${isEn ? "text-2xl sm:text-4xl lg:text-5xl" : "text-4xl sm:text-5xl lg:text-6xl"}`}>{t.landing.title}</span>
         </h1>
         <p className="text-base sm:text-lg lg:text-xl font-display text-neon tracking-widest mt-6 sm:mt-8">
-          TA真的适合和你携手一生吗？
+          {t.landing.subtitle}
         </p>
         <div className="mt-4 h-px w-32 mx-auto bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
       </motion.div>
@@ -52,7 +65,7 @@ export default function LandingPage() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
       >
-        如果你也有以下困扰，试试这个测评
+        {t.landing.hookIntro}
       </motion.p>
 
       {/* Hook Cards */}
@@ -73,12 +86,12 @@ export default function LandingPage() {
           className="relative group"
         >
           <span className="relative z-10 font-mono tracking-wider">
-            [ 开始深度扫描 ]
+            {t.landing.cta}
           </span>
           <div className="absolute inset-0 rounded-lg bg-neon/5 group-hover:bg-neon/10 transition-colors" />
         </Button>
         <p className="text-sm text-muted-foreground mt-3 font-mono">
-          25 道题 · 约 4–5 分钟 · 完全匿名
+          {t.landing.ctaSubtext}
         </p>
       </motion.div>
 
@@ -90,7 +103,7 @@ export default function LandingPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}
         >
-          已有 {visitCount.toLocaleString()} 人访问
+          {t.landing.visitCount(visitCount)}
         </motion.p>
       )}
 

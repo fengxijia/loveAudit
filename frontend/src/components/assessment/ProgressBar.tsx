@@ -1,7 +1,8 @@
 "use client";
 
 import { Progress } from "@/components/ui/progress";
-import { chapters } from "@/data/questions";
+import { useLocale } from "@/i18n";
+import { getChapters } from "@/data/getQuestions";
 
 interface ProgressBarProps {
   currentIndex: number;
@@ -10,6 +11,8 @@ interface ProgressBarProps {
 }
 
 export default function ProgressBar({ currentIndex, totalQuestions, currentChapter }: ProgressBarProps) {
+  const locale = useLocale();
+  const chapters = getChapters(locale);
   const progress = ((currentIndex + 1) / totalQuestions) * 100;
   const chapter = chapters.find((c) => c.id === currentChapter);
 

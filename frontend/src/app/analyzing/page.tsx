@@ -8,11 +8,15 @@ import CbtTips from "@/components/analyzing/CbtTips";
 import { useAppStore, useHydrated } from "@/store/store";
 import { useSSE } from "@/hooks/useSSE";
 import { Button } from "@/components/ui/button";
-import { questions } from "@/data/questions";
+import { useT, useLocale } from "@/i18n";
+import { getQuestions } from "@/data/getQuestions";
 import type { AnalysisResult } from "@/types";
 
 export default function AnalyzingPage() {
   const router = useRouter();
+  const t = useT();
+  const locale = useLocale();
+  const questions = useMemo(() => getQuestions(locale), [locale]);
   const {
     answers,
     userPersonality,
@@ -47,10 +51,10 @@ export default function AnalyzingPage() {
       },
       onError: (err: Error) => {
         setIsAnalyzing(false);
-        setErrorMsg(err.message || "分析失败，请重试");
+        setErrorMsg(err.message || t.analyzing.failed);
       },
     }),
-    [appendStreamingText, setAnalysisResult, setIsAnalyzing, router]
+    [appendStreamingText, setAnalysisResult, setIsAnalyzing, router, t]
   );
 
   const { connect, disconnect } = useSSE("/api/v1/analysis/stream", sseOptions);
@@ -84,10 +88,11 @@ export default function AnalyzingPage() {
       userPersonality,
       partnerPersonality,
       freeformText,
+      locale,
     };
 
     connect(payload);
-  }, [answers, userPersonality, partnerPersonality, freeformText, connect, resetStreamingText, setIsAnalyzing, router]);
+  }, [answers, userPersonality, partnerPersonality, freeformText, locale, questions, connect, resetStreamingText, setIsAnalyzing, router]);
 
   useEffect(() => {
     if (!hydrated || hasStarted.current) return;
@@ -128,7 +133,7 @@ export default function AnalyzingPage() {
           {errorMsg ? (
             <>
               <h2 className="text-xl font-bold text-red-400 mb-2 font-mono">
-                分析失败
+                {t.analyzing.failed}
               </h2>
               <p className="text-sm text-muted-foreground mb-4">
                 {errorMsg}
@@ -138,16 +143,16 @@ export default function AnalyzingPage() {
                 onClick={handleRetry}
                 className="mb-4"
               >
-                重新分析
+                {t.analyzing.retry}
               </Button>
             </>
           ) : (
             <>
               <h2 className="text-xl font-bold text-glow mb-2 font-mono">
-                AI 深度分析中...
+                {t.analyzing.title}
               </h2>
               <p className="text-sm text-muted-foreground mb-2">
-                正在交叉比对你的回答，识别关系模式
+                {t.analyzing.subtitle}
               </p>
 
               {/* Progress dots */}

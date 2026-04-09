@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { useT } from "@/i18n";
 
 interface PersonaTagProps {
   tags: string[];
@@ -9,6 +10,7 @@ interface PersonaTagProps {
 }
 
 export default function PersonaTag({ tags, verdict }: PersonaTagProps) {
+  const t = useT();
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -18,7 +20,7 @@ export default function PersonaTag({ tags, verdict }: PersonaTagProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-base font-display text-neon/80">
-            你的关系情况
+            {t.personaTag.title}
           </CardTitle>
         </CardHeader>
         <CardContent>

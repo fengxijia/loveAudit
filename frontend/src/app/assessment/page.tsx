@@ -3,8 +3,9 @@
 import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { questions } from "@/data/questions";
 import { useAppStore, useHydrated } from "@/store/store";
+import { useT, useLocale } from "@/i18n";
+import { getQuestions, getChapters } from "@/data/getQuestions";
 import QuestionCard from "@/components/assessment/QuestionCard";
 import ChapterIntro from "@/components/assessment/ChapterIntro";
 import ProgressBar from "@/components/assessment/ProgressBar";
@@ -12,6 +13,9 @@ import ProgressBar from "@/components/assessment/ProgressBar";
 export default function AssessmentPage() {
   const router = useRouter();
   const hydrated = useHydrated();
+  const t = useT();
+  const locale = useLocale();
+  const questions = useMemo(() => getQuestions(locale), [locale]);
   const {
     currentIndex,
     setCurrentIndex,
@@ -65,6 +69,7 @@ export default function AssessmentPage() {
       currentQuestion,
       currentIndex,
       currentChapter,
+      questions,
       addAnswer,
       setCurrentIndex,
       setFreeformText,
@@ -142,7 +147,7 @@ export default function AssessmentPage() {
           disabled={currentIndex === 0}
           className="text-sm text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors font-mono cursor-pointer disabled:cursor-not-allowed"
         >
-          ← 上一题
+          {t.assessment.prevQuestion}
         </button>
         <span className="text-xs text-muted-foreground/50 font-mono">
           Ch.{currentChapter}

@@ -2,8 +2,12 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { useEffect, useState } from "react";
 import { Answer, AnalysisResult, PersonalityType } from "@/types";
+import type { Locale } from "@/i18n";
 
 interface AppState {
+  // Locale
+  locale: Locale;
+
   // Assessment
   currentIndex: number;
   answers: Answer[];
@@ -17,6 +21,7 @@ interface AppState {
   isAnalyzing: boolean;
 
   // Actions
+  setLocale: (locale: Locale) => void;
   setCurrentIndex: (index: number) => void;
   addAnswer: (answer: Answer) => void;
   setUserPersonality: (type: PersonalityType) => void;
@@ -32,6 +37,7 @@ interface AppState {
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
+      locale: "zh" as Locale,
       currentIndex: 0,
       answers: [],
       userPersonality: null,
@@ -41,6 +47,7 @@ export const useAppStore = create<AppState>()(
       streamingText: "",
       isAnalyzing: false,
 
+      setLocale: (locale) => set({ locale }),
       setCurrentIndex: (index) => set({ currentIndex: index }),
       addAnswer: (answer) =>
         set((state) => ({
@@ -58,7 +65,8 @@ export const useAppStore = create<AppState>()(
       setIsAnalyzing: (analyzing) => set({ isAnalyzing: analyzing }),
       resetStreamingText: () => set({ streamingText: "" }),
       reset: () =>
-        set({
+        set((state) => ({
+          locale: state.locale,
           currentIndex: 0,
           answers: [],
           userPersonality: null,
@@ -67,12 +75,13 @@ export const useAppStore = create<AppState>()(
           analysisResult: null,
           streamingText: "",
           isAnalyzing: false,
-        }),
+        })),
     }),
     {
       name: "loveaudit-store",
       // Only persist assessment progress and results — skip transient streaming state
       partialize: (state) => ({
+        locale: state.locale,
         currentIndex: state.currentIndex,
         answers: state.answers,
         userPersonality: state.userPersonality,
