@@ -8,7 +8,7 @@ const en: Translations = {
     hookIntro: "If any of these sound familiar, try this assessment",
     cta: "[ START DEEP SCAN ]",
     ctaSubtext: "25 questions · ~5 min · fully anonymous",
-    visitCount: (count: number) => `${count.toLocaleString()} visitors so far`,
+    visitCount: (count: number) => `${count.toLocaleString()} visits so far`,
   },
 
   // Hook cards
