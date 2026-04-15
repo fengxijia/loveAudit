@@ -6,7 +6,7 @@ const zh = {
     hookIntro: "如果你也有以下困扰，试试这个测评",
     cta: "[ 开始深度扫描 ]",
     ctaSubtext: "25 道题 · 约 4–5 分钟 · 完全匿名",
-    visitCount: (count: number) => `已有 ${count.toLocaleString()} 人访问`,
+    visitCount: (count: number) => `已有 ${count.toLocaleString()} 次访问`,
   },
 
   // Hook cards
